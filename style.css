@@ -203,7 +203,8 @@ button{
   box-shadow:0 0 20px rgba(239,68,68,.25);
 }
 
-display: inline-flex;
+.status-pill {
+    display: inline-flex;
     align-items: center;
     padding: 5px 6px;
     border-radius: 999px;
@@ -212,7 +213,8 @@ display: inline-flex;
     background: rgba(255, 255, 255, .06);
     backdrop-filter: blur(6px);
     margin: 3px 0px 6px -1px;
-
+}
+  
 .status-online{
   color:#22c55e;
 }
