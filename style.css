@@ -223,4 +223,14 @@ button{
   color:#ef4444;
 }
 
+.ban-ok{
+  color:#22c55e;
+  font-size:18px;
+}
+
+.ban-bad{
+  color:#ef4444;
+  font-size:18px;
+}
+
 a{color:#818cf8;text-decoration:none;}
