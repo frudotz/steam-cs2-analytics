@@ -69,6 +69,19 @@ if(input.includes("steamcommunity.com")){
   const bans=data.bans;
   const faceit=data.faceit;
 
+  let faceitLevel = null
+let faceitClass = ""
+
+if(faceit?.games?.cs2?.skill_level){
+  faceitLevel = faceit.games.cs2.skill_level
+
+  if(faceitLevel <= 3) faceitClass = "faceit-low"
+  else if(faceitLevel <= 6) faceitClass = "faceit-mid"
+  else if(faceitLevel <= 9) faceitClass = "faceit-high"
+  else faceitClass = "faceit-pro"
+}
+
+  
   const age=calculateAccountAge(p.timecreated);
   const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli";
   const last2w=cs2?.playtime_2weeks
