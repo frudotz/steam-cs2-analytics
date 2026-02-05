@@ -23,6 +23,20 @@ export default {
       const apiUrl =
         `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_KEY}&steamids=${steamid}`
 
+      const gamesRes = await fetch(
+       `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
+      )
+
+      const gamesData = await gamesRes.json()
+
+      const cs2 = gamesData.response.games
+      .find(g => g.appid === 730)
+
+      return new Response(JSON.stringify({
+      profile: data.response.players[0],
+      cs2: cs2
+      }))
+      
       const steamRes = await fetch(apiUrl)
       const data = await steamRes.json()
 
