@@ -17,6 +17,22 @@ function calculateTrustScore(age,hours,bans){
   return Math.floor(score);
 }
 
+async function getFaceitBySteam(steamid){
+
+  const res = await fetch(
+    "https://open.faceit.com/data/v4/players?game=cs2&game_player_id=" + steamid,
+    {
+      headers:{
+        "Authorization":"Bearer " + FACEIT_KEY
+      }
+    }
+  )
+
+  if(!res.ok) return null
+
+  return await res.json()
+}
+
 async function getProfile(){
 
   const inputEl=document.getElementById("steamid");
