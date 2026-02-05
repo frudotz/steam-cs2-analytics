@@ -1,3 +1,21 @@
+let input = document.getElementById("steamid").value.trim()
+
+if(input.includes("steamcommunity.com")){
+
+  try{
+    const url = new URL(input)
+
+    if(url.pathname.includes("/id/")){
+      input = url.pathname.split("/id/")[1].split("/")[0]
+    }
+
+    if(url.pathname.includes("/profiles/")){
+      input = url.pathname.split("/profiles/")[1].split("/")[0]
+    }
+
+  }catch{}
+}
+
 function calculateAccountAge(ts){
   if(!ts) return "Gizli"
   const created=new Date(ts*1000)
@@ -37,6 +55,14 @@ async function getProfile(){
   )
 
   const data=await res.json()
+  if(data.error){
+  result.innerHTML = `
+    <div class="error-card">
+      ${data.error}
+    </div>
+  `
+  return
+}
 
   const p=data.profile
   const cs2=data.cs2
