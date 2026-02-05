@@ -9,6 +9,25 @@ export default {
 
     try{
 
+      const allowedDomains = [
+      "cs2.frudotz.com",
+      "frudotz.github.io"
+    ]
+
+    const origin = request.headers.get("Origin") || ""
+    const referer = request.headers.get("Referer") || ""
+
+    const isAllowed = allowedDomains.some(d =>
+      origin.includes(d) || referer.includes(d)
+    )
+
+    if(!isAllowed){
+      return new Response(
+        JSON.stringify({ error:"Yetkisiz erişim" }),
+        { status:403, headers:corsHeaders }
+      )
+    }
+
       const url = new URL(request.url)
       const steamid = url.searchParams.get("steamid")
 
