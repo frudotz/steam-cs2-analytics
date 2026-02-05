@@ -70,10 +70,15 @@ else if(hours >= 1000) hoursEmoji = "🚀"
 else if(hours < 500) hoursEmoji = "😘"
 
 const avgDaily = Math.round(last2w / 14)
-const activeEmoji = avgDaily >= 5 ? "⚡" : ""
+const activeEmoji = avgDaily >= 5 ? "👌" : "⚡"
 
-const vacIcon = bans.NumberOfVACBans > 0 ? "❌" : "✅"
-const gameBanIcon = bans.NumberOfGameBans > 0 ? "❌" : "✅"
+const vacIcon = bans.NumberOfVACBans > 0
+  ? '<i class="fas fa-check ban-bad"></i>'
+  : '<i class="fas fa-times ban-ok"></i>'
+
+const gameBanIcon = bans.NumberOfGameBans > 0
+  ? '<i class="fas fa-check ban-bad"></i>'
+  : '<i class="fas fa-times ban-ok"></i>'
 
   result.innerHTML=`
 
