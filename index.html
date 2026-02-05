@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>CS2 Profil Görüntüleyici</title>
+</head>
+<body>
+
+<h2>SteamID Gir</h2>
+
+<input id="steamid" placeholder="7656119..." />
+<button onclick="getProfile()">Getir</button>
+
+<pre id="output"></pre>
+
+<script>
+async function getProfile() {
+  const steamid = document.getElementById("steamid").value
+  const output = document.getElementById("output")
+
+  output.textContent = "Yükleniyor..."
+
+  const res = await fetch(
+    "https://cs2proxy.username.workers.dev/?steamid=" + steamid
+  )
+
+  const data = await res.json()
+
+  output.textContent = JSON.stringify(data, null, 2)
+}
+</script>
+
+</body>
+</html>
