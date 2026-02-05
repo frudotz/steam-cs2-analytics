@@ -233,4 +233,32 @@ button{
   font-size:18px;
 }
 
+.faceit-badge{
+  position:absolute;
+  right:14px;
+  bottom:14px;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:16px;
+  color:white;
+  box-shadow:0 0 18px rgba(0,0,0,.6);
+}
+
+.faceit-badge span{
+  font-size:10px;
+  letter-spacing:.5px;
+  opacity:.8;
+}
+
+.faceit-low{ background:#475569; }
+.faceit-mid{ background:#3b82f6; }
+.faceit-high{ background:#f97316; }
+.faceit-pro{ background:#dc2626; }
+
 a{color:#818cf8;text-decoration:none;}
