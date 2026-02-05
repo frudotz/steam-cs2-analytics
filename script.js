@@ -124,6 +124,10 @@ const gameBanIcon = bans.NumberOfGameBans > 0
       <div>Hesap Yaşı: ${age} yıl</div>
       <a href="${p.profileurl}" target="_blank">Profili Aç</a>
     </div>
+<div class="faceit-badge ${faceitClass}">
+  ${faceitLevel}
+  <span>FACEIT</span>
+</div>
   </div>
 </div>
 
