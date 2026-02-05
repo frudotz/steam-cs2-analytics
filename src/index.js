@@ -3,9 +3,10 @@ export default {
     try {
 
       const ALLOWED_ORIGINS = [
-        "http://cs2.frudotz.com",
-        "https://frudotz.github.io"
-      ]
+      "https://cs2.frudotz.com",
+      "http://cs2.frudotz.com",
+      "https://frudotz.github.io"
+      ]    
 
       const origin = request.headers.get("Origin")
       const referer = request.headers.get("Referer")
@@ -116,8 +117,8 @@ export default {
         bans: banData.players[0]
       }),{
         headers:{
-          "Content-Type":"application/json",
-          "Access-Control-Allow-Origin":origin||referer
+        "Content-Type":"application/json",
+        "Access-Control-Allow-Origin": origin || referer
         }
       })
 
