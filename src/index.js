@@ -2,16 +2,20 @@ export default {
   async fetch(request, env) {
     try {
 
-      const ALLOWED_ORIGIN = "https://cs2.frudotz.com"
+      const ALLOWED_ORIGINS = [
+        "http://cs2.frudotz.com",
+        "https://frudotz.github.io"
+      ]
 
       const origin = request.headers.get("Origin")
       const referer = request.headers.get("Referer")
 
-      if (
-        !origin?.startsWith(ALLOWED_ORIGIN) &&
-        !referer?.startsWith(ALLOWED_ORIGIN)
-      ) {
-        return new Response("Forbidden", { status: 403 })
+      const allowed = ALLOWED_ORIGINS.some(d =>
+        origin?.startsWith(d) || referer?.startsWith(d)
+      )
+
+      if(!allowed){
+        return new Response("Forbidden",{status:403})
       }
 
       const RATE_LIMIT = 30
@@ -80,7 +84,7 @@ export default {
       }), {
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": ALLOWED_ORIGIN
+          "Access-Control-Allow-Origin": origin || referer
         }
       })
 
