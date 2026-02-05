@@ -35,7 +35,7 @@ async function getProfile(){
 
   const steamid = document.getElementById("steamid").value
   const result = document.getElementById("result")
-  
+
   result.innerHTML = "Yükleniyor..."
 
   const res = await fetch(
@@ -46,19 +46,16 @@ async function getProfile(){
 
   const p = data.profile
   const cs2 = data.cs2
+  const bans = data.bans
 
   const totalHours = cs2 ? Math.floor(cs2.playtime_forever / 60) : "Gizli"
   const twoWeekHours = cs2?.playtime_2weeks 
       ? Math.floor(cs2.playtime_2weeks / 60) 
       : "0"
 
-  const windowsHours = cs2 ? Math.floor(cs2.playtime_windows_forever / 60) : 0
-  const linuxHours = cs2 ? Math.floor(cs2.playtime_linux_forever / 60) : 0
-  const macHours = cs2 ? Math.floor(cs2.playtime_mac_forever / 60) : 0
+  const age = calculateAccountAge(p.timecreated)
+  const trust = calculateTrustScore(age, totalHours, bans)
 
-  const trust = calculateTrustScore(age, totalHours, data.bans)
-
-  
   result.innerHTML = `
     <div class="card">
 
@@ -70,35 +67,29 @@ async function getProfile(){
 
         <div class="sub">${getStatus(p.personastate)}</div>
 
-        <div class="sub">Gerçek Ad: ${p.realname || "Gizli"}</div>
+        <div class="sub">Hesap Yaşı: ${age} yıl</div>
 
-        <div class="sub">Ülke: ${p.loccountrycode || "-"}</div>
-
-        <div class="sub">Hesap Yaşı: ${calculateAccountAge(p.timecreated)} yıl</div>
-
-        <hr>
-
-        <div class="sub"><b>CS2 Toplam Süre:</b> ${totalHours} saat</div>
+        <div class="sub">CS2 Süre: ${totalHours} saat</div>
 
         <div class="sub">Son 2 Hafta: ${twoWeekHours} saat</div>
 
-        <div class="sub">Son Oynama: ${unixToDate(cs2?.rtime_last_played)}</div>
+        <div class="sub">VAC Ban: ${bans.NumberOfVACBans > 0 ? "Var" : "Yok"}</div>
 
-        <div class="sub">Windows: ${windowsHours}h | Linux: ${linuxHours}h | Mac: ${macHours}h</div>
+        <div class="sub">Game Ban: ${bans.NumberOfGameBans > 0 ? "Var" : "Yok"}</div>
+
+        <div class="sub">Güven Skoru: ${trust}/100</div>
+
+        <div style="background:#1e293b;border-radius:8px;overflow:hidden;">
+          <div style="
+            width:${trust}%;
+            background:${trust > 70 ? '#22c55e' : trust > 40 ? '#facc15' : '#ef4444'};
+            height:10px;
+          "></div>
+        </div>
 
         <div class="sub">
           <a href="${p.profileurl}" target="_blank">Steam Profilini Aç</a>
         </div>
-
-        <div class="sub">Güven Skoru: ${trust}/100</div>
-
-<div style="background:#1e293b;border-radius:8px;overflow:hidden;">
-  <div style="
-    width:${trust}%;
-    background:${trust > 70 ? '#22c55e' : trust > 40 ? '#facc15' : '#ef4444'};
-    height:10px;
-  "></div>
-</div>
 
       </div>
     </div>
