@@ -73,8 +73,8 @@ async function getProfile(){
     </div>
     <div>
       <div class="name">${p.personaname}</div>
-      <div class="badge ${p.personastate===1?'green':'red'}">
-        ${p.personastate===1?'Online':'Offline'}
+      <div class="status-pill ${p.personastate===1?'status-online':'status-offline'}">
+        ${p.personastate===1?'🟢 Online':'🔴 Offline'}
       </div>
       <div>Hesap Yaşı: ${age} yıl</div>
       <a href="${p.profileurl}" target="_blank">Profili Aç</a>
