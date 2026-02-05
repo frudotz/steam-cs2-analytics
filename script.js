@@ -64,6 +64,17 @@ async function getProfile(){
     trust>70?"#22c55e":
     trust>40?"#facc15":"#ef4444";
 
+  let hoursEmoji = "🤙"
+if(hours >= 2000) hoursEmoji = "🫡"
+else if(hours >= 1000) hoursEmoji = "🚀"
+else if(hours < 500) hoursEmoji = "😘"
+
+const avgDaily = Math.round(last2w / 14)
+const activeEmoji = avgDaily >= 5 ? "⚡" : ""
+
+const vacIcon = bans.NumberOfVACBans > 0 ? "❌" : "✅"
+const gameBanIcon = bans.NumberOfGameBans > 0 ? "❌" : "✅"
+
   result.innerHTML=`
 
 <div class="card">
@@ -85,10 +96,25 @@ async function getProfile(){
 <div class="card">
   <div>CS2 Bilgileri</div>
   <div class="grid-4">
-    <div class="stat">${hours}<span>Toplam Saat</span></div>
-    <div class="stat">${last2w}<span>Son 2 Hafta</span></div>
-    <div class="stat">${bans.NumberOfVACBans>0?'Var':'Yok'}<span>VAC Ban</span></div>
-    <div class="stat">${bans.NumberOfGameBans>0?'Var':'Yok'}<span>Game Ban</span></div>
+    <div class="stat">
+  ${hours} ${hoursEmoji}
+  <span>Toplam Saat</span>
+</div>
+
+<div class="stat">
+  ${last2w} ${activeEmoji}
+  <span>Son 2 Hafta</span>
+</div>
+
+<div class="stat">
+  ${vacIcon}
+  <span>VAC Ban</span>
+</div>
+
+<div class="stat">
+  ${gameBanIcon}
+  <span>Game Ban</span>
+</div>
   </div>
 </div>
 
