@@ -1,5 +1,5 @@
 {
-  "name": "cs2proxy",
+  "name": "steam-cs2-analytics",
   "main": "src/index.js",
   "compatibility_date": "2026-02-05",
 
