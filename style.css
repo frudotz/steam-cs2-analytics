@@ -58,3 +58,23 @@ button{
   font-size:14px;
   margin-top:4px;
 }
+
+.section{
+  margin-top:20px;
+}
+
+.card-title{
+  font-weight:bold;
+  margin-bottom:8px;
+  opacity:.8;
+}
+
+.bar-bg{
+  background:#1e293b;
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.bar-fill{
+  height:10px;
+}
