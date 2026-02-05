@@ -13,11 +13,29 @@ function getStatus(state){
   return state === 1 ? "🟢 Online" : "⚫ Offline"
 }
 
+function calculateTrustScore(age, hours, bans){
+  let score = 0
+
+  if(typeof age === "number"){
+    score += Math.min(age * 2, 30)
+  }
+
+  if(typeof hours === "number"){
+    score += Math.min(hours / 10, 50)
+  }
+
+  if(bans.NumberOfVACBans === 0 && bans.NumberOfGameBans === 0){
+    score += 20
+  }
+
+  return Math.floor(score)
+}
+
 async function getProfile(){
 
   const steamid = document.getElementById("steamid").value
   const result = document.getElementById("result")
-
+  
   result.innerHTML = "Yükleniyor..."
 
   const res = await fetch(
@@ -38,6 +56,9 @@ async function getProfile(){
   const linuxHours = cs2 ? Math.floor(cs2.playtime_linux_forever / 60) : 0
   const macHours = cs2 ? Math.floor(cs2.playtime_mac_forever / 60) : 0
 
+  const trust = calculateTrustScore(age, totalHours, data.bans)
+
+  
   result.innerHTML = `
     <div class="card">
 
@@ -68,6 +89,16 @@ async function getProfile(){
         <div class="sub">
           <a href="${p.profileurl}" target="_blank">Steam Profilini Aç</a>
         </div>
+
+        <div class="sub">Güven Skoru: ${trust}/100</div>
+
+<div style="background:#1e293b;border-radius:8px;overflow:hidden;">
+  <div style="
+    width:${trust}%;
+    background:${trust > 70 ? '#22c55e' : trust > 40 ? '#facc15' : '#ef4444'};
+    height:10px;
+  "></div>
+</div>
 
       </div>
     </div>
