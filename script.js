@@ -5,21 +5,6 @@ function calculateAccountAge(timestamp){
   return Math.floor((now - created) / (1000*60*60*24*365))
 }
 
-function getStatus(state){
-  return state === 1 ? "Online" : "Offline"
-}
-
-function getVisibility(v){
-  return v === 3 ? "Public" : "Private"
-}
-
-function trustScore(age, hours){
-  let score = 0
-  if(age !== "Gizli") score += age * 2
-  if(typeof hours === "number") score += hours / 10
-  return Math.min(Math.floor(score),100)
-}
-
 async function getProfile(){
 
   const steamid = document.getElementById("steamid").value
@@ -32,17 +17,23 @@ async function getProfile(){
   )
 
   const data = await res.json()
-  const p = data.response.players[0]
+
+  const p = data.profile
+  const cs2 = data.cs2
+
+  const hours = cs2 
+    ? Math.floor(cs2.playtime_forever / 60) 
+    : "Bulunamadı"
+
+  const age = calculateAccountAge(p.timecreated)
 
   result.innerHTML = `
     <div class="card">
       <img class="avatar" src="${p.avatarfull}" />
-
       <div class="info">
         <div class="name">${p.personaname}</div>
-        <div class="sub">Hesap Yaşı: ${calculateAccountAge(p.timecreated)} yıl</div>
-        <div class="sub">Durum: ${getStatus(p.personastate)}</div>
-        <div class="sub">Profil: ${getVisibility(p.communityvisibilitystate)}</div>
+        <div class="sub">Hesap Yaşı: ${age} yıl</div>
+        <div class="sub">CS2 Süre: ${hours} saat</div>
         <div class="sub">
           <a href="${p.profileurl}" target="_blank">Steam Profilini Aç</a>
         </div>
