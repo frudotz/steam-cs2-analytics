@@ -235,10 +235,10 @@ button{
 
 .faceit-rank-badge{
   position:absolute;
-  right:14px;
-  bottom:14px;
-  width:64px;
-  height:64px;
+  right: 15px;
+  bottom: 15px;
+  width: 45px;
+  height: 45px;
 }
 
 .faceit-rank-badge img{
