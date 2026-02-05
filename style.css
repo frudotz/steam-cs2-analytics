@@ -203,18 +203,15 @@ button{
   box-shadow:0 0 20px rgba(239,68,68,.25);
 }
 
-.status-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-  background:rgba(255,255,255,.06);
-  backdrop-filter:blur(6px);
-  margin-top:6px;
-}
+display: inline-flex;
+    align-items: center;
+    padding: 5px 6px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, .06);
+    backdrop-filter: blur(6px);
+    margin: 3px 0px 6px -1px;
 
 .status-online{
   color:#22c55e;
