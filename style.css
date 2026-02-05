@@ -9,7 +9,10 @@ body{
 }
 
 .container{
-  width:380px;
+  width:100%;
+  max-width:420px;
+  margin:auto;
+  padding:0 16px 80px;
 }
 
 h2{
