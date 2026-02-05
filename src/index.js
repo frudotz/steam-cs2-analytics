@@ -28,7 +28,7 @@ export default {
 
       // 2️⃣ Oyun listesi
       const gamesRes = await fetch(
-        `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
+        `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true&include_free_games=true`
       )
       const gamesData = await gamesRes.json()
 
