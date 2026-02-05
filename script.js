@@ -1,4 +1,3 @@
-<script>
 function calculateAccountAge(timestamp){
   if(!timestamp) return "Gizli"
   const created = new Date(timestamp * 1000)
@@ -74,4 +73,3 @@ async function getProfile(){
     </div>
   `
 }
-</script>
