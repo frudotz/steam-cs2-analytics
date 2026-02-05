@@ -13,6 +13,13 @@ function getVisibility(v){
   return v === 3 ? "Public" : "Private"
 }
 
+function trustScore(age, hours){
+  let score = 0
+  if(age !== "Gizli") score += age * 2
+  if(typeof hours === "number") score += hours / 10
+  return Math.min(Math.floor(score),100)
+}
+
 async function getProfile(){
 
   const steamid = document.getElementById("steamid").value
