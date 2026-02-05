@@ -21,7 +21,7 @@ async function getProfile() {
   output.textContent = "Yükleniyor..."
 
   const res = await fetch(
-    "https://cs2proxy.username.workers.dev/?steamid=" + steamid
+    "https://steam-cs2-analytics.frudotz.workers.dev/?steamid=" + steamid
   )
 
   const data = await res.json()
