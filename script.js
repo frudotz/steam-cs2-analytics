@@ -51,7 +51,7 @@ async function getProfile(){
   result.innerHTML='<div class="loading">Yükleniyor...</div>'
 
   const res=await fetch(
-   "https://steam-cs2-analytics.frudotz.workers.dev/?steamid="+steamid
+   "https://steam-cs2-analytics.frudotz.workers.dev/?steamid="+input
   )
 
   const data=await res.json()
