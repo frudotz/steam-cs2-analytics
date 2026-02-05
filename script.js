@@ -61,39 +61,67 @@ async function getProfile(){
 
   result.innerHTML = `
 
-  <!-- STEAM PROFIL -->
-  <div class="card section">
-    <div class="card-title">Steam Profil</div>
-    <div style="display:flex;gap:15px;align-items:center;">
-      <img class="avatar" src="${p.avatarfull}">
-      <div>
-        <div class="name">${p.personaname}</div>
-        <div class="sub">${getStatus(p.personastate)}</div>
-        <div class="sub">Hesap Yaşı: ${age} yıl</div>
-        <div class="sub">
-          <a href="${p.profileurl}" target="_blank">Profili Aç</a>
-        </div>
+<!-- STEAM PROFIL -->
+<div class="card">
+  <div class="profile-row">
+    <img class="avatar" src="${p.avatarfull}">
+    <div>
+      <div class="name">${p.personaname}</div>
+
+      <div class="badge ${p.personastate===1?'green':'red'}">
+        ${p.personastate===1?'● Online':'● Offline'}
       </div>
+
+      <div class="sub">Hesap Yaşı: ${age} yıl</div>
+
+      <a href="${p.profileurl}" target="_blank">Profili Aç</a>
     </div>
   </div>
+</div>
 
-  <!-- CS2 -->
-  <div class="card section">
-    <div class="card-title">CS2 Bilgileri</div>
-    <div class="sub">Toplam Süre: ${hours} saat</div>
-    <div class="sub">Son 2 Hafta: ${last2w} saat</div>
-    <div class="sub">VAC Ban: ${bans.NumberOfVACBans>0?"Var":"Yok"}</div>
-    <div class="sub">Game Ban: ${bans.NumberOfGameBans>0?"Var":"Yok"}</div>
+<!-- CS2 -->
+<div class="card">
+  <div class="card-title">CS2 Bilgileri</div>
+
+  <div class="grid-4">
+
+    <div class="stat">
+      ${hours}
+      <span>Toplam Saat</span>
+    </div>
+
+    <div class="stat">
+      ${last2w}
+      <span>Son 2 Hafta</span>
+    </div>
+
+    <div class="stat">
+      ${bans.NumberOfVACBans>0?'Var':'Yok'}
+      <span>VAC Ban</span>
+    </div>
+
+    <div class="stat">
+      ${bans.NumberOfGameBans>0?'Var':'Yok'}
+      <span>Game Ban</span>
+    </div>
+
   </div>
+</div>
 
-  <!-- GÜVEN -->
-  <div class="card section">
-    <div class="card-title">Güven Skoru</div>
-    <div class="sub">${trust}/100</div>
-    <div class="bar-bg">
-      <div class="bar-fill" style="width:${trust}%;background:${trustColor}"></div>
+<!-- TRUST -->
+<div class="card">
+  <div class="card-title">Güven Skoru</div>
+
+  <div class="sub">${trust}/100</div>
+
+  <div class="trust-bar-bg">
+    <div class="trust-bar-fill"
+      style="
+        width:${trust}%;
+        background:${trust>70?'#22c55e':trust>40?'#facc15':'#ef4444'};
+      ">
     </div>
   </div>
-
-  `
+</div>
+`
 }
