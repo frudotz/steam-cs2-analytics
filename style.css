@@ -47,6 +47,16 @@ button{
   cursor:pointer;
 }
 
+.error-card{
+  background:#020617;
+  border:1px solid rgba(239,68,68,.5);
+  color:#fecaca;
+  padding:16px;
+  border-radius:14px;
+  text-align:center;
+  box-shadow:0 0 20px rgba(239,68,68,.25);
+}
+
 .card{
   position:relative;
   margin-top:22px;
