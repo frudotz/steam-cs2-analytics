@@ -96,14 +96,23 @@ async function getProfile(){
   <div>Güven Skoru</div>
 
   <div class="trust-wrapper">
-    ${trust}/100
-    <div class="trust-bar-bg">
+
+  <div class="trust-bar-outer">
+    <div class="trust-bar-inner">
+
       <div 
         class="trust-bar-fill ${trust>70?'trust-good':trust>40?'trust-mid':'trust-bad'}"
         style="width:${trust}%"
       ></div>
+
+      <div class="trust-text">
+        ${trust} / 100
+      </div>
+
     </div>
   </div>
+
+</div>
 </div>
 
 `};
