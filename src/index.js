@@ -1,17 +1,26 @@
 export default {
   async fetch(request, env) {
 
-    const url = new URL(request.url)
-    const steamid = url.searchParams.get("steamid")
-
-    if(!steamid){
-      return Response.json({ error:"SteamID gerekli" },{status:400})
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Headers": "Content-Type"
     }
 
-    const STEAM_KEY = env.STEAM_KEY
-    const FACEIT_KEY = env.FACEIT_KEY
-
     try{
+
+      const url = new URL(request.url)
+      const steamid = url.searchParams.get("steamid")
+
+      if(!steamid){
+        return new Response(
+          JSON.stringify({ error:"SteamID gerekli" }),
+          { status:400, headers:corsHeaders }
+        )
+      }
+
+      const STEAM_KEY = env.STEAM_KEY
+      const FACEIT_KEY = env.FACEIT_KEY
 
       // STEAM PROFILE
       const profileRes = await fetch(
@@ -25,7 +34,7 @@ export default {
         `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
       )
       const gamesData = await gamesRes.json()
-      const cs2 = gamesData.response.games.find(g=>g.appid===730) || null
+      const cs2 = gamesData.response.games?.find(g=>g.appid===730) || null
 
       // BANS
       const bansRes = await fetch(
@@ -36,7 +45,6 @@ export default {
 
       // FACEIT
       let faceit = null
-
       const faceitRes = await fetch(
         `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${steamid}`,
         {
@@ -50,19 +58,18 @@ export default {
         faceit = await faceitRes.json()
       }
 
-      return Response.json({
-        profile,
-        cs2,
-        bans,
-        faceit
-      },{
-        headers:{
-          "Access-Control-Allow-Origin":"*"
-        }
-      })
+      return new Response(
+        JSON.stringify({ profile, cs2, bans, faceit }),
+        { headers:corsHeaders }
+      )
 
     }catch(e){
-      return Response.json({ error:"API hata verdi" })
+
+      return new Response(
+        JSON.stringify({ error:"Sunucu hatası" }),
+        { status:500, headers:corsHeaders }
+      )
+
     }
 
   }
