@@ -68,6 +68,7 @@ async function getProfile(){
   const p=data.profile;
   const cs2=data.cs2;
   const bans=data.bans;
+  const faceit=data.faceit;
 
   const age=calculateAccountAge(p.timecreated);
   const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli";
@@ -162,4 +163,10 @@ const gameBanIcon = bans.NumberOfGameBans > 0
 </div>
 </div>
 
+<div class="card">
+<b>FACEIT</b><br>
+Nick: ${faceit.nickname}<br>
+Level: ${faceit.games.cs2.skill_level}<br>
+ELO: ${faceit.games.cs2.faceit_elo}
+</div>
 `};
