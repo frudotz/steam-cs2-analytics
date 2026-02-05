@@ -1,21 +1,3 @@
-let input = document.getElementById("steamid").value.trim()
-
-if(input.includes("steamcommunity.com")){
-
-  try{
-    const url = new URL(input)
-
-    if(url.pathname.includes("/id/")){
-      input = url.pathname.split("/id/")[1].split("/")[0]
-    }
-
-    if(url.pathname.includes("/profiles/")){
-      input = url.pathname.split("/profiles/")[1].split("/")[0]
-    }
-
-  }catch{}
-}
-
 function calculateAccountAge(ts){
   if(!ts) return "Gizli"
   const created=new Date(ts*1000)
@@ -45,24 +27,40 @@ function calculateTrustScore(age,hours,bans){
 
 async function getProfile(){
 
-  const steamid=document.getElementById("steamid").value
-  const result=document.getElementById("result")
+  const inputEl=document.getElementById("steamid")
+  let input=inputEl.value.trim()
 
+  if(!input) return
+
+  if(input.includes("steamcommunity.com")){
+    try{
+      const url=new URL(input)
+      if(url.pathname.includes("/id/")){
+        input=url.pathname.split("/id/")[1].split("/")[0]
+      }
+      if(url.pathname.includes("/profiles/")){
+        input=url.pathname.split("/profiles/")[1].split("/")[0]
+      }
+    }catch{}
+  }
+
+  const result=document.getElementById("result")
   result.innerHTML='<div class="loading">Yükleniyor...</div>'
 
   const res=await fetch(
-   "https://steam-cs2-analytics.frudotz.workers.dev/?steamid="+input
+   "https://steam-cs2-analytics.frudotz.workers.dev/?steamid="+encodeURIComponent(input)
   )
 
   const data=await res.json()
+
   if(data.error){
-  result.innerHTML = `
-    <div class="error-card">
-      ${data.error}
-    </div>
-  `
-  return
-}
+    result.innerHTML=`
+      <div class="error-card">
+        ${data.error}
+      </div>
+    `
+    return
+  }
 
   const p=data.profile
   const cs2=data.cs2
@@ -83,7 +81,6 @@ async function getProfile(){
 
   result.innerHTML=`
 
-<!-- STEAM PROFIL -->
 <div class="card">
   <div class="profile-row">
     <div class="avatar">
@@ -100,52 +97,30 @@ async function getProfile(){
   </div>
 </div>
 
-<!-- CS2 -->
 <div class="card">
   <div class="card-title">CS2 Bilgileri</div>
-
   <div class="grid-4">
-
-    <div class="stat">
-      ${hours}
-      <span>Toplam Saat</span>
-    </div>
-
-    <div class="stat">
-      ${last2w}
-      <span>Son 2 Hafta</span>
-    </div>
-
-    <div class="stat">
-      ${bans.NumberOfVACBans>0?'Var':'Yok'}
-      <span>VAC Ban</span>
-    </div>
-
-    <div class="stat">
-      ${bans.NumberOfGameBans>0?'Var':'Yok'}
-      <span>Game Ban</span>
-    </div>
-
+    <div class="stat">${hours}<span>Toplam Saat</span></div>
+    <div class="stat">${last2w}<span>Son 2 Hafta</span></div>
+    <div class="stat">${bans.NumberOfVACBans>0?'Var':'Yok'}<span>VAC Ban</span></div>
+    <div class="stat">${bans.NumberOfGameBans>0?'Var':'Yok'}<span>Game Ban</span></div>
   </div>
 </div>
 
-<!-- TRUST -->
 <div class="card">
   <div class="card-title">Güven Skoru</div>
-
   <div class="trust-ring"
-    style="
-      background:
-      conic-gradient(
-        ${trustColor} ${trust}%,
-        #1e293b ${trust}%
-      );
-    ">
+   style="
+    background:
+     conic-gradient(
+      ${trustColor} ${trust}%,
+      #1e293b ${trust}%
+     );
+   ">
     <div class="trust-ring-inner">
       ${trust}
     </div>
   </div>
-
 </div>
+
 `
-}
