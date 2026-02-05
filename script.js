@@ -69,16 +69,12 @@ if(input.includes("steamcommunity.com")){
   const bans=data.bans;
   const faceit=data.faceit;
 
-  let faceitLevel = null
-let faceitClass = ""
+ let faceitLevel = null
+let faceitBadgeURL = null
 
 if(faceit?.games?.cs2?.skill_level){
   faceitLevel = faceit.games.cs2.skill_level
-
-  if(faceitLevel <= 3) faceitClass = "faceit-low"
-  else if(faceitLevel <= 6) faceitClass = "faceit-mid"
-  else if(faceitLevel <= 9) faceitClass = "faceit-high"
-  else faceitClass = "faceit-pro"
+  faceitBadgeURL = `https://faceitfinder.com/resources/ranks/skill_level_${faceitLevel}_lg.png`
 }
 
   
@@ -124,9 +120,8 @@ const gameBanIcon = bans.NumberOfGameBans > 0
       <div>Hesap Yaşı: ${age} yıl</div>
       <a href="${p.profileurl}" target="_blank">Profili Aç</a>
     </div>
-<div class="faceit-badge ${faceitClass}">
-  ${faceitLevel}
-  <span>FACEIT</span>
+<div class="faceit-rank-badge">
+  <img src="${faceitBadgeURL}" alt="FACEIT Level ${faceitLevel}">
 </div>
   </div>
 </div>
