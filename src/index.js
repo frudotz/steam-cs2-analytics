@@ -20,27 +20,28 @@ export default {
         )
       }
 
-      const apiUrl =
+      // 1️⃣ Profil verisi
+      const profileRes = await fetch(
         `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_KEY}&steamids=${steamid}`
-
-      const gamesRes = await fetch(
-       `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
       )
+      const profileData = await profileRes.json()
 
+      // 2️⃣ Oyun listesi
+      const gamesRes = await fetch(
+        `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
+      )
       const gamesData = await gamesRes.json()
 
-      const cs2 = gamesData.response.games
-      .find(g => g.appid === 730)
+      // Güvenli erişim
+      const games = gamesData?.response?.games || []
 
+      const cs2 = games.find(g => g.appid === 730) || null
+
+      // 3️⃣ Tek response
       return new Response(JSON.stringify({
-      profile: data.response.players[0],
-      cs2: cs2
-      }))
-      
-      const steamRes = await fetch(apiUrl)
-      const data = await steamRes.json()
-
-      return new Response(JSON.stringify(data, null, 2), {
+        profile: profileData.response.players[0],
+        cs2: cs2
+      }), {
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*"
