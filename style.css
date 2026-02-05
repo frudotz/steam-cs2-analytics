@@ -78,3 +78,75 @@ button{
 .bar-fill{
   height:10px;
 }
+
+.card{
+  background: linear-gradient(145deg,#020617,#020617cc);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 10px 40px rgba(56,189,248,.15);
+  transition:.3s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 20px 60px rgba(56,189,248,.25);
+}
+
+.profile-row{
+  display:flex;
+  gap:15px;
+  align-items:center;
+}
+
+.avatar{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  border:2px solid #38bdf8;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#0f172a;
+}
+
+.badge.green{color:#22c55e;}
+.badge.red{color:#ef4444;}
+
+.grid-4{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:10px;
+}
+
+.stat{
+  background:#020617;
+  border-radius:10px;
+  padding:10px;
+  text-align:center;
+}
+
+.stat span{
+  display:block;
+  font-size:12px;
+  opacity:.7;
+}
+
+.trust-bar-bg{
+  background:#020617;
+  border-radius:999px;
+  overflow:hidden;
+  height:14px;
+  margin-top:8px;
+}
+
+.trust-bar-fill{
+  height:100%;
+  transition:width .4s;
+}
