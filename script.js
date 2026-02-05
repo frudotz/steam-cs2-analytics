@@ -35,21 +35,20 @@ async function getFaceitBySteam(steamid){
 
 async function getProfile(){
 
-  const inputEl=document.getElementById("steamid");
-  let input=inputEl.value.trim();
-  if(!input) return;
+  let input = document.getElementById("steamid").value.trim()
+if(!input) return
 
-  if(input.includes("steamcommunity.com")){
-    try{
-      const url=new URL(input);
-      if(url.pathname.includes("/id/")){
-        input=url.pathname.split("/id/")[1].split("/")[0];
-      }
-      if(url.pathname.includes("/profiles/")){
-        input=url.pathname.split("/profiles/")[1].split("/")[0];
-      }
-    }catch(e){}
-  }
+if(input.includes("steamcommunity.com")){
+  try{
+    const u = new URL(input)
+
+    if(u.pathname.includes("/id/"))
+      input = u.pathname.split("/id/")[1].split("/")[0]
+
+    if(u.pathname.includes("/profiles/"))
+      input = u.pathname.split("/profiles/")[1].split("/")[0]
+  }catch{}
+}
 
   const result=document.getElementById("result");
   result.innerHTML='<div class="loading">Yükleniyor...</div>';
