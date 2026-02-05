@@ -149,6 +149,28 @@ button{
   font-weight:bold;
 }
 
+.trust-wrapper{
+  margin-top:12px;
+}
+
+.trust-bar-bg{
+  width:100%;
+  height:12px;
+  background:#020617;
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.trust-bar-fill{
+  height:100%;
+  width:0%;
+  transition:width .4s ease;
+}
+
+.trust-good{ background:#22c55e; }
+.trust-mid{ background:#facc15; }
+.trust-bad{ background:#ef4444; }
+
 .loading{
   text-align:center;
   margin-top:20px;
