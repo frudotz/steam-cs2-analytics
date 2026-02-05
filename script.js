@@ -94,10 +94,15 @@ async function getProfile(){
 
 <div class="card">
   <div>Güven Skoru</div>
-  <div class="trust-ring"
-    style="background:
-      conic-gradient(${trustColor} ${trust}%,#1e293b ${trust}%);">
-    <div class="trust-inner">${trust}</div>
+
+  <div class="trust-wrapper">
+    ${trust}/100
+    <div class="trust-bar-bg">
+      <div 
+        class="trust-bar-fill ${trust>70?'trust-good':trust>40?'trust-mid':'trust-bad'}"
+        style="width:${trust}%"
+      ></div>
+    </div>
   </div>
 </div>
 
