@@ -37,7 +37,9 @@
 <h2>SteamID Gir</h2>
 
 <div class="search-box">
-  <input id="steamid" placeholder="SteamID / Nick / URL" />
+  <input id="steamid"
+       placeholder="SteamID / Nick / URL"
+       onkeydown="if(event.key==='Enter') getProfile()" />
   <button onclick="getProfile()">Getir</button>
 </div>
 
