@@ -87,18 +87,6 @@ const faceitHistory = data.faceitHistory
   
  let faceitLevel = null
 let faceitBadgeURL = null
-
-  let akHs=null, m4Hs=null, awpHs=null
-
-if(faceitStats?.segments){
-  const ak = faceitStats.segments.find(s=>s.label==="AK-47")
-  const m4 = faceitStats.segments.find(s=>s.label==="M4A1")
-  const awp = faceitStats.segments.find(s=>s.label==="AWP")
-
-  if(ak) akHs = ak.stats["Headshots %"]
-  if(m4) m4Hs = m4.stats["Headshots %"]
-  if(awp) awpHs = awp.stats["Headshots %"]
-}
   
 if(faceit?.games?.cs2?.skill_level){
   faceitLevel = faceit.games.cs2.skill_level
@@ -136,20 +124,6 @@ if(faceitHistory?.items){
       : `<span class="wl-loss">L</span>`
   })
 }
-
-  let mapStats = {}
-
-if(faceitHistory?.items){
-  faceitHistory.items.slice(0,10).forEach(m=>{
-    const map = m.map || m.stats?.Map || "Bilinmeyen"
-    mapStats[map] = (mapStats[map] || 0) + 1
-  })
-}
-
-let mapListHTML = ""
-Object.entries(mapStats).forEach(([map,count])=>{
-  mapListHTML += `<div class="mini-stat">${map}<span>${count} maç</span></div>`
-})
   
   const age=calculateAccountAge(p.timecreated);
   const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli";
@@ -288,11 +262,6 @@ const gameBanIcon = bans.NumberOfGameBans > 0
       ${eloDiff}
       <span>Son Maç ELO</span>
     </div>
-
-${akHs ? `<div class="mini-stat">${akHs}%<span>AK HS%</span></div>` : ``}
-${m4Hs ? `<div class="mini-stat">${m4Hs}%<span>M4 HS%</span></div>` : ``}
-${awpHs ? `<div class="mini-stat">${awpHs}%<span>AWP HS%</span></div>` : ``}
- ${mapListHTML}
 
   </div>
 
