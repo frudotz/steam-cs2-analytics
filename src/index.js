@@ -27,14 +27,33 @@ export default {
     const FACEIT_KEY = env.FACEIT_KEY
     const TURNSTILE_SECRET = env.TURNSTILE_SECRET
 
+    const allowedOrigins = new Set([
+      "https://cs2.frudotz.com",
+      "https://frudotz.github.io"
+    ])
+
+    const origin = request.headers.get("Origin") || ""
+    const isAllowedOrigin = allowedOrigins.has(origin)
+
     const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token"
+      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+      "Vary": "Origin"
     }
 
     if (request.method === "OPTIONS") {
+      if (!isAllowedOrigin) {
+        return new Response("Origin not allowed", { status: 403 })
+      }
       return new Response(null, { headers: corsHeaders })
+    }
+
+    if (!isAllowedOrigin) {
+      return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+        headers: corsHeaders,
+        status: 403
+      })
     }
 
     try {
