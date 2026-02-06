@@ -1,169 +1,157 @@
 export default {
   async fetch(request, env) {
 
+    const STEAM_KEY = env.STEAM_KEY
+    const FACEIT_KEY = env.FACEIT_KEY
+
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
       "Access-Control-Allow-Headers": "Content-Type"
     }
 
     try {
 
       const url = new URL(request.url)
-      let input = url.searchParams.get("steamid")
+      let steamInput = url.searchParams.get("steamid")
 
-      if(!input){
-        return new Response(
-          JSON.stringify({ error:"SteamID gerekli" }),
-          { status:400, headers:corsHeaders }
-        )
+      if (!steamInput) {
+        return new Response(JSON.stringify({ error: "SteamID gerekli" }), {
+          headers: corsHeaders,
+          status: 400
+        })
       }
 
-      const STEAM_KEY = env.STEAM_KEY
-      const FACEIT_KEY = env.FACEIT_KEY
+      // Steam profile linki geldiyse ayıkla
+      if (steamInput.includes("steamcommunity.com")) {
+        try {
+          const u = new URL(steamInput)
 
-      let steamid = input
+          if (u.pathname.includes("/id/")) {
+            steamInput = u.pathname.split("/id/")[1].split("/")[0]
+          }
 
-      // VANITY → STEAMID64
-      if(!/^\d{17}$/.test(input)){
+          if (u.pathname.includes("/profiles/")) {
+            steamInput = u.pathname.split("/profiles/")[1].split("/")[0]
+          }
+        } catch {}
+      }
 
-        const vanityURL =
-          `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${STEAM_KEY}&vanityurl=${input}`
-
-        const vanityRes = await fetch(vanityURL)
-
-        if(!vanityRes.ok){
-          return new Response(
-            JSON.stringify({ error:"Vanity API isteği başarısız" }),
-            { status:500, headers:corsHeaders }
-          )
-        }
-
+      // Vanity URL -> SteamID64
+      if (!/^\d{17}$/.test(steamInput)) {
+        const vanityRes = await fetch(
+          `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${STEAM_KEY}&vanityurl=${steamInput}`
+        )
         const vanityData = await vanityRes.json()
 
-        if(vanityData.response?.success !== 1){
-          return new Response(
-            JSON.stringify({ error:"Steam kullanıcısı bulunamadı" }),
-            { status:404, headers:corsHeaders }
-          )
+        if (vanityData.response.success !== 1) {
+          return new Response(JSON.stringify({ error: "Steam kullanıcı bulunamadı" }), {
+            headers: corsHeaders,
+            status: 404
+          })
         }
 
-        steamid = vanityData.response.steamid
+        steamInput = vanityData.response.steamid
       }
 
-      // PROFILE
+      const steamid = steamInput
+
+      // ========== STEAM PROFIL ==========
       const profileRes = await fetch(
         `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_KEY}&steamids=${steamid}`
       )
-
-      if(!profileRes.ok){
-        return new Response(
-          JSON.stringify({ error:"Steam profil API hata" }),
-          { status:500, headers:corsHeaders }
-        )
-      }
-
       const profileData = await profileRes.json()
       const profile = profileData.response.players[0]
 
-      // OWNED GAMES
+      // ========== OWNED GAMES ==========
       const gamesRes = await fetch(
         `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
       )
 
       const gamesData = await gamesRes.json()
-      const cs2 = gamesData.response?.games?.find(g=>g.appid===730) || null
+      const gamesCount = gamesData.response?.game_count || 0
 
-      // BANS
-      const bansRes = await fetch(
-        `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_KEY}&steamids=${steamid}`
-      )
+      let totalHours = 0
+      let cs2 = null
 
-      const bansData = await bansRes.json()
-      const bans = bansData.players[0]
-
-      // FACEIT
-      let faceit=null
-      const faceitRes = await fetch(
-        `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${steamid}`,
-        {
-          headers:{ Authorization:"Bearer "+FACEIT_KEY }
+      if (gamesData.response?.games) {
+        for (const g of gamesData.response.games) {
+          totalHours += g.playtime_forever
+          if (g.appid === 730) cs2 = g
         }
-      )
-
-      if(faceitRes.ok){
-        faceit=await faceitRes.json()
       }
 
-const calcRes = await fetch(
-  `https://steamdb.info/calculator/${steamid}`,
-  {
-    headers:{
-      "User-Agent":"Mozilla/5.0",
-      "Accept":"text/html"
-    }
-  }
-)
+      totalHours = Math.floor(totalHours / 60)
 
-let accountValue = "0"
-
-if(calcRes.ok){
-  const html = await calcRes.text()
-
-  const match = html.match(
-    /<div class="prices">[\s\S]*?<span>\$([0-9,]+)<\/span>/
-  )
-
-  if(match){
-    accountValue = match[1].replace(/,/g,"")
-  }
-}
-      
-      // FACEIT STATS
-let faceitStats = null
-let faceitHistory = null
-
-if(faceit?.player_id){
-
-  const statsRes = await fetch(
-    `https://open.faceit.com/data/v4/players/${faceit.player_id}/stats/cs2`,
-    { headers:{ Authorization:"Bearer "+FACEIT_KEY } }
-  )
-
-  if(statsRes.ok){
-    faceitStats = await statsRes.json()
-  }
-
-  const historyRes = await fetch(
-    `https://open.faceit.com/data/v4/players/${faceit.player_id}/history?game=cs2&limit=5`,
-    { headers:{ Authorization:"Bearer "+FACEIT_KEY } }
-  )
-
-  if(historyRes.ok){
-    faceitHistory = await historyRes.json()
-  }
-}
-      
-     return new Response(
-  JSON.stringify({
-    profile,
-    cs2,
-    bans,
-    faceit,
-    faceitStats,
-    faceitHistory,
-    accountValue
-  }),
-  { headers: corsHeaders }
-)
-
-    }catch(err){
-
-      return new Response(
-        JSON.stringify({ error:"Worker crash", detail:String(err) }),
-        { status:500, headers:corsHeaders }
+      // ========== BANS ==========
+      const banRes = await fetch(
+        `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_KEY}&steamids=${steamid}`
       )
+      const banData = await banRes.json()
+      const bans = banData.players[0]
 
+      // ========== FACEIT ==========
+      let faceit = null
+      let faceitStats = null
+      let faceitHistory = null
+
+      try {
+        const faceitUserRes = await fetch(
+          `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${steamid}`,
+          { headers: { Authorization: `Bearer ${FACEIT_KEY}` } }
+        )
+
+        if (faceitUserRes.ok) {
+          faceit = await faceitUserRes.json()
+
+          const statsRes = await fetch(
+            `https://open.faceit.com/data/v4/players/${faceit.player_id}/stats/cs2`,
+            { headers: { Authorization: `Bearer ${FACEIT_KEY}` } }
+          )
+          faceitStats = await statsRes.json()
+
+          const histRes = await fetch(
+            `https://open.faceit.com/data/v4/players/${faceit.player_id}/history?game=cs2&limit=5`,
+            { headers: { Authorization: `Bearer ${FACEIT_KEY}` } }
+          )
+          faceitHistory = await histRes.json()
+        }
+      } catch {}
+
+      // ========== ACCOUNT POWER ==========
+      const accountAge = profile.timecreated
+        ? Math.floor((Date.now() - profile.timecreated * 1000) / (1000 * 60 * 60 * 24 * 365))
+        : 0
+
+      const accountPower =
+        (gamesCount * 2) +
+        (totalHours / 10) +
+        (accountAge * 5)
+
+      return new Response(JSON.stringify({
+        profile,
+        cs2,
+        bans,
+        faceit,
+        faceitStats,
+        faceitHistory,
+        gamesCount,
+        accountPower
+      }), {
+        headers: corsHeaders
+      })
+
+    } catch (err) {
+
+      console.error("WORKER ERROR:", err)
+
+      return new Response(JSON.stringify({
+        error: true,
+        message: err.message || "Worker crash"
+      }), {
+        headers: corsHeaders,
+        status: 500
+      })
     }
-
   }
 }
