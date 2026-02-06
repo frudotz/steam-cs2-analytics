@@ -94,6 +94,19 @@ export default {
         faceit=await faceitRes.json()
       }
 
+const calcRes = await fetch(
+  `https://steamdb.info/calculator/${steamid}/`,
+  { headers:{ "User-Agent":"Mozilla/5.0" } }
+)
+
+let accountValue = null
+
+if(calcRes.ok){
+  const html = await calcRes.text()
+  const match = html.match(/Account value<\/th>\s*<td>\$([0-9,]+)/)
+  if(match) accountValue = match[1]
+}
+      
       // FACEIT STATS
 let faceitStats = null
 let faceitHistory = null
