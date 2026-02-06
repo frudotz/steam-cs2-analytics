@@ -160,6 +160,12 @@ export default {
       )
       const profileData = await profileRes.json()
       const profile = profileData.response.players[0]
+      if (!profile) {
+        return new Response(JSON.stringify({ error: "Steam profili bulunamadı" }), {
+          headers: corsHeaders,
+          status: 404
+        })
+      }
 
       // ========== OWNED GAMES ==========
       const gamesRes = await fetch(
@@ -168,12 +174,13 @@ export default {
 
       const gamesData = await gamesRes.json()
       const gamesCount = gamesData.response?.game_count || 0
+      const gamesList = gamesData.response?.games || []
 
       let totalHours = 0
       let cs2 = null
 
-      if (gamesData.response?.games) {
-        for (const g of gamesData.response.games) {
+      if (gamesList.length > 0) {
+        for (const g of gamesList) {
           totalHours += g.playtime_forever
           if (g.appid === 730) cs2 = g
         }
@@ -187,6 +194,13 @@ export default {
       )
       const banData = await banRes.json()
       const bans = banData.players[0]
+
+      // ========== STEAM META ==========
+      const steamLevel = await fetchSteamLevel(steamid, STEAM_KEY)
+      const badgeData = await fetchBadges(steamid, STEAM_KEY)
+      const workshopStats = await fetchWorkshopStats(steamid, STEAM_KEY)
+      const friendBanStats = await fetchFriendBanStats(steamid, STEAM_KEY)
+      const accountValue = await fetchAccountValue(gamesList)
 
       // ========== FACEIT ==========
       let faceit = null
@@ -234,7 +248,17 @@ export default {
         faceitStats,
         faceitHistory,
         gamesCount,
-        accountPower
+        accountPower,
+        steamLevel,
+        accountValue,
+        accountValueCurrency: STORE_CURRENCY,
+        cs2BadgeCount: badgeData?.cs2BadgeCount ?? null,
+        topBadges: badgeData?.topBadges ?? [],
+        serviceYears: Number.isFinite(accountAge) ? accountAge : null,
+        workshopStats,
+        marketStats: null,
+        tradeStats: null,
+        friendBanStats
       }), {
         headers: corsHeaders
       })

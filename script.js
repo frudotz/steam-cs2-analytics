@@ -2,6 +2,10 @@ const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
+<<<<<<< codex/implement-security-and-design-updates-38haba
+const turnstileWrapper = document.getElementById("turnstileWrapper")
+=======
+>>>>>>> main
 
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
@@ -22,17 +26,96 @@ function calculateAge(ts){
   return Math.floor((Date.now()-ts*1000)/(1000*60*60*24*365))
 }
 
-function calculateTrustScore(age,hours,winrate,vac,elo,power){
-  let score=0
+function clamp(value,min,max){
+  return Math.max(min,Math.min(max,value))
+}
 
-  if(age!=="Gizli") score+=age*1.2
-  if(hours!=="Gizli") score+=hours/20
-  if(winrate!=="?") score+=winrate*0.5
-  if(elo) score+=elo/250
-  if(power) score+=power/60
-  if(vac>0) score-=50
+function normalize(value,cap){
+  if(value===null||value===undefined) return null
+  return clamp(value/cap,0,1)
+}
 
-  return Math.max(0,Math.min(100,Math.floor(score)))
+function formatNumber(value){
+  if(value===null||value===undefined) return "Veri yok"
+  return Intl.NumberFormat("tr-TR").format(value)
+}
+
+function formatCurrency(amount,currency="USD"){
+  if(amount===null||amount===undefined) return "Veri yok"
+  return new Intl.NumberFormat("tr-TR",{
+    style:"currency",
+    currency,
+    maximumFractionDigits:0
+  }).format(amount)
+}
+
+function getNeutralFactor(value){
+  return value===null||value===undefined ? 0.5 : value
+}
+
+function calculateTrustScore(payload){
+  const {
+    ageYears,
+    totalHours,
+    steamLevel,
+    gamesCount,
+    accountValue,
+    workshopStats,
+    marketStats,
+    tradeStats,
+    cs2BadgeCount,
+    bans,
+    friendBanStats,
+    faceitStats,
+    faceit
+  } = payload
+
+  const components = [
+    { weight:0.12, value:getNeutralFactor(normalize(ageYears,15)) },
+    { weight:0.12, value:getNeutralFactor(normalize(totalHours,2000)) },
+    { weight:0.1, value:getNeutralFactor(normalize(steamLevel,100)) },
+    { weight:0.08, value:getNeutralFactor(normalize(accountValue,500)) },
+    { weight:0.06, value:getNeutralFactor(normalize(gamesCount,500)) },
+    {
+      weight:0.06,
+      value:getNeutralFactor(normalize((workshopStats?.likes||0)+(workshopStats?.comments||0),700))
+    },
+    {
+      weight:0.06,
+      value:getNeutralFactor(normalize((marketStats?.transactions||0)+(tradeStats?.trades||0),200))
+    },
+    { weight:0.06, value:getNeutralFactor(normalize(cs2BadgeCount,10)) },
+    { weight:0.12, value:getNeutralFactor(buildFaceitFactor(faceit,faceitStats)) },
+    { weight:0.15, value:getNeutralFactor(buildBanFactor(bans)) },
+    { weight:0.07, value:getNeutralFactor(buildFriendBanFactor(friendBanStats)) }
+  ]
+
+  const score = components.reduce((acc,item)=>acc+(item.weight*item.value),0)
+  return Math.round(clamp(score*100,0,100))
+}
+
+function buildFaceitFactor(faceit,faceitStats){
+  if(!faceit || !faceitStats?.lifetime) return null
+  const winrate = parseInt(faceitStats.lifetime["Win Rate %"] || 0,10)
+  const elo = faceit?.games?.cs2?.faceit_elo || 0
+  const matches = parseInt(faceitStats.lifetime["Matches"] || 0,10)
+  const winFactor = normalize(winrate,70) ?? 0.5
+  const eloFactor = normalize(elo,2000) ?? 0.5
+  const matchFactor = normalize(matches,500) ?? 0.5
+  return clamp((winFactor+eloFactor+matchFactor)/3,0,1)
+}
+
+function buildFriendBanFactor(friendBanStats){
+  if(!friendBanStats) return null
+  const banned = friendBanStats.bannedFriends || 0
+  return 1 - clamp(banned/50,0,1)
+}
+
+function buildBanFactor(bans){
+  if(!bans) return null
+  const vac = bans.NumberOfVACBans || 0
+  const game = bans.NumberOfGameBans || 0
+  return vac>0 || game>0 ? 0 : 1
 }
 
 async function getProfile(){
@@ -48,6 +131,10 @@ async function getProfile(){
     </div>
   `
 
+<<<<<<< codex/implement-security-and-design-updates-38haba
+  turnstileWrapper.classList.add("is-visible")
+=======
+>>>>>>> main
   const turnstileToken = document.querySelector("[name='cf-turnstile-response']")?.value
 
   if(!turnstileToken){
@@ -71,6 +158,10 @@ async function getProfile(){
   if(window.turnstile){
     window.turnstile.reset()
   }
+<<<<<<< codex/implement-security-and-design-updates-38haba
+  turnstileWrapper.classList.remove("is-visible")
+=======
+>>>>>>> main
 
   if(data.error){
     result.innerHTML="Kullanıcı bulunamadı."
@@ -84,7 +175,16 @@ async function getProfile(){
   const faceitStats=data.faceitStats
   const faceitHistory=data.faceitHistory
   const gamesCount=data.gamesCount
-  const accountPower=data.accountPower
+  const steamLevel=data.steamLevel
+  const accountValue=data.accountValue
+  const accountValueCurrency=data.accountValueCurrency
+  const cs2BadgeCount=data.cs2BadgeCount
+  const serviceYears=data.serviceYears
+  const topBadges=data.topBadges || []
+  const workshopStats=data.workshopStats
+  const marketStats=data.marketStats
+  const tradeStats=data.tradeStats
+  const friendBanStats=data.friendBanStats
 
   const age=calculateAge(p.timecreated)
   const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli"
@@ -106,7 +206,28 @@ async function getProfile(){
       .join(" ")
   }
 
+<<<<<<< codex/implement-security-and-design-updates-38haba
+  const vacBans=bans?.NumberOfVACBans ?? null
+  const gameBans=bans?.NumberOfGameBans ?? null
+
+  const trust=calculateTrustScore({
+    ageYears: age==="Gizli"?null:age,
+    totalHours: hours==="Gizli"?null:hours,
+    steamLevel,
+    gamesCount,
+    accountValue,
+    workshopStats,
+    marketStats,
+    tradeStats,
+    cs2BadgeCount,
+    bans,
+    friendBanStats,
+    faceitStats,
+    faceit
+  })
+=======
   const trust=calculateTrustScore(age,hours,winrate,bans.NumberOfVACBans,elo,accountPower)
+>>>>>>> main
   const trustLabel=trust>70?"Yüksek":trust>40?"Orta":"Düşük"
   const trustClass=trust>70?"trust-high":trust>40?"trust-mid":"trust-low"
 
@@ -116,6 +237,21 @@ async function getProfile(){
     faceitBadgeURL=`https://faceitfinder.com/resources/ranks/skill_level_${lvl}_lg.png`
   }
 
+  const accountValueText=formatCurrency(accountValue,accountValueCurrency)
+  const serviceYearsText=(serviceYears===null||serviceYears===undefined) ? "Veri yok" : `${serviceYears} yıl`
+  const levelText=steamLevel??"Veri yok"
+  const friendBanText=friendBanStats
+    ? `${friendBanStats.bannedFriends}/${friendBanStats.totalFriends}`
+    : "Veri yok"
+  const topBadgeMarkup=topBadges.length
+    ? topBadges.map(badge=>`
+      <div class="mini-badge">
+        <span>XP ${formatNumber(badge.xp)}</span>
+        <small>Badge #${badge.badgeid}</small>
+      </div>
+    `).join("")
+    : `<div class="mini-badge empty">Veri yok</div>`
+
   result.innerHTML=`
 
 <!-- STEAM PROFILE -->
@@ -124,14 +260,17 @@ async function getProfile(){
   <div class="profile-row">
     <img class="avatar" src="${p.avatarfull}">
     <div>
-      <div class="name">${p.personaname}</div>
+      <a class="name-link" href="${p.profileurl}" target="_blank" rel="noreferrer">
+        <span class="name">${p.personaname}</span>
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
 
       <div class="status-pill ${p.personastate===1?'status-online':'status-offline'}">
         ${p.personastate===1?'🟢 Online':'🔴 Offline'}
       </div>
 
       <div class="sub">Hesap Yaşı: ${age} yıl</div>
-      <a href="${p.profileurl}" target="_blank">Steam Profili</a>
+      <div class="sub">Hesap Değeri: ${accountValueText}</div>
     </div>
   </div>
 
@@ -142,11 +281,25 @@ async function getProfile(){
       <div class="badge-count">${gamesCount}</div>
     </div>
 
+    <div class="badge-pill">
+      <span>Seviye</span>
+      <strong>${levelText}</strong>
+    </div>
+
+    <div class="badge-pill">
+      <span>Hizmet</span>
+      <strong>${serviceYearsText}</strong>
+    </div>
+
     ${faceitBadgeURL?`
     <div class="faceit-rank-badge">
       <img src="${faceitBadgeURL}">
     </div>`:""}
 
+  </div>
+
+  <div class="badge-row">
+    ${topBadgeMarkup}
   </div>
 
 </div>
@@ -157,16 +310,25 @@ async function getProfile(){
 
   <div class="grid-4">
 
-    <div class="stat">
+    <div class="stat ${hours!=="Gizli"&&hours>500?"stat-positive":"stat-neutral"}">
       ${hours}
       <span>Toplam Saat</span>
     </div>
 
-    <div class="stat">
+    <div class="stat ${last2w>40?"stat-positive":"stat-neutral"}">
       ${last2w}
       <span>Son 2 Hafta</span>
     </div>
 
+<<<<<<< codex/implement-security-and-design-updates-38haba
+    <div class="stat ${vacBans===null?"stat-neutral":vacBans>0?"stat-negative":"stat-positive"}">
+      ${vacBans===null?'<span>Veri yok</span>':vacBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+      <span>VAC Ban</span>
+    </div>
+
+    <div class="stat ${gameBans===null?"stat-neutral":gameBans>0?"stat-negative":"stat-positive"}">
+      ${gameBans===null?'<span>Veri yok</span>':gameBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+=======
     <div class="stat">
       ${bans.NumberOfVACBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
       <span>VAC Ban</span>
@@ -174,9 +336,15 @@ async function getProfile(){
 
     <div class="stat">
       ${bans.NumberOfGameBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+>>>>>>> main
       <span>Game Ban</span>
     </div>
 
+  </div>
+
+  <div class="cs2-meta">
+    <div>CS2 Rozet: ${cs2BadgeCount ?? "Veri yok"}</div>
+    <div>Banlı Arkadaş: ${friendBanText}</div>
   </div>
 </div>
 
@@ -194,6 +362,29 @@ async function getProfile(){
   </div>
   `:`Faceit profili yok`}
 
+</div>
+
+<!-- COMMUNITY -->
+<div class="card glow-card">
+  <div class="card-title">Topluluk Etkileşimi</div>
+  <div class="grid-4">
+    <div class="stat ${workshopStats?"stat-positive":"stat-neutral"}">
+      ${formatNumber(workshopStats?.likes)}
+      <span>Atölye Beğeni</span>
+    </div>
+    <div class="stat ${workshopStats?"stat-positive":"stat-neutral"}">
+      ${formatNumber(workshopStats?.comments)}
+      <span>Atölye Yorum</span>
+    </div>
+    <div class="stat ${marketStats?"stat-positive":"stat-neutral"}">
+      ${formatNumber(marketStats?.transactions)}
+      <span>Pazar İşlemi</span>
+    </div>
+    <div class="stat ${tradeStats?"stat-positive":"stat-neutral"}">
+      ${formatNumber(tradeStats?.trades)}
+      <span>Takas</span>
+    </div>
+  </div>
 </div>
 
 <!-- TRUST -->
