@@ -94,6 +94,31 @@ export default {
         faceit=await faceitRes.json()
       }
 
+      // FACEIT STATS
+let faceitStats = null
+let faceitHistory = null
+
+if(faceit?.player_id){
+
+  const statsRes = await fetch(
+    `https://open.faceit.com/data/v4/players/${faceit.player_id}/stats/cs2`,
+    { headers:{ Authorization:"Bearer "+FACEIT_KEY } }
+  )
+
+  if(statsRes.ok){
+    faceitStats = await statsRes.json()
+  }
+
+  const historyRes = await fetch(
+    `https://open.faceit.com/data/v4/players/${faceit.player_id}/history?game=cs2&limit=5`,
+    { headers:{ Authorization:"Bearer "+FACEIT_KEY } }
+  )
+
+  if(historyRes.ok){
+    faceitHistory = await historyRes.json()
+  }
+}
+      
       return new Response(
         JSON.stringify({ profile, cs2, bans, faceit }),
         { headers:corsHeaders }
