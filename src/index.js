@@ -1,16 +1,60 @@
+const RATE_LIMIT_WINDOW_MS = 60 * 1000
+const RATE_LIMIT_MAX = 20
+const rateLimitStore = new Map()
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  const entry = rateLimitStore.get(ip)
+
+  if (!entry || now > entry.resetAt) {
+    const resetAt = now + RATE_LIMIT_WINDOW_MS
+    rateLimitStore.set(ip, { count: 1, resetAt })
+    return { allowed: true, retryAfter: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000) }
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return { allowed: false, retryAfter: Math.ceil((entry.resetAt - now) / 1000) }
+  }
+
+  entry.count += 1
+  return { allowed: true, retryAfter: Math.ceil((entry.resetAt - now) / 1000) }
+}
+
 export default {
   async fetch(request, env) {
 
     const STEAM_KEY = env.STEAM_KEY
     const FACEIT_KEY = env.FACEIT_KEY
+    const TURNSTILE_SECRET = env.TURNSTILE_SECRET
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token"
+    }
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders })
     }
 
     try {
+      const ip = request.headers.get("cf-connecting-ip")
+        || request.headers.get("x-forwarded-for")
+        || "unknown"
+
+      const rateLimitCheck = checkRateLimit(ip)
+      if (!rateLimitCheck.allowed) {
+        return new Response(JSON.stringify({
+          error: "Rate limit exceeded",
+          retryAfter: rateLimitCheck.retryAfter
+        }), {
+          headers: {
+            ...corsHeaders,
+            "Retry-After": `${rateLimitCheck.retryAfter}`
+          },
+          status: 429
+        })
+      }
 
       const url = new URL(request.url)
       let steamInput = url.searchParams.get("steamid")
@@ -19,6 +63,41 @@ export default {
         return new Response(JSON.stringify({ error: "SteamID gerekli" }), {
           headers: corsHeaders,
           status: 400
+        })
+      }
+
+      console.log("REQUEST", { ip, steamInput })
+
+      const turnstileToken = request.headers.get("x-turnstile-token")
+      if (!turnstileToken) {
+        return new Response(JSON.stringify({ error: "Captcha gerekli" }), {
+          headers: corsHeaders,
+          status: 403
+        })
+      }
+
+      if (!TURNSTILE_SECRET) {
+        return new Response(JSON.stringify({ error: "Captcha konfigüre edilmedi" }), {
+          headers: corsHeaders,
+          status: 500
+        })
+      }
+
+      const turnstileRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: TURNSTILE_SECRET,
+          response: turnstileToken,
+          remoteip: ip
+        })
+      })
+
+      const turnstileData = await turnstileRes.json()
+      if (!turnstileData.success) {
+        return new Response(JSON.stringify({ error: "Captcha doğrulaması başarısız" }), {
+          headers: corsHeaders,
+          status: 403
         })
       }
 
