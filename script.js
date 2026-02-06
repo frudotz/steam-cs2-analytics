@@ -289,16 +289,12 @@ const gameBanIcon = bans.NumberOfGameBans > 0
       <span>Son Maç ELO</span>
     </div>
 
-  </div>
-
-</div>
-<div class="faceit-substats">
 ${akHs ? `<div class="mini-stat">${akHs}%<span>AK HS%</span></div>` : ``}
 ${m4Hs ? `<div class="mini-stat">${m4Hs}%<span>M4 HS%</span></div>` : ``}
 ${awpHs ? `<div class="mini-stat">${awpHs}%<span>AWP HS%</span></div>` : ``}
-</div>
+ ${mapListHTML}
 
-<div class="faceit-substats">
-  ${mapListHTML}
+  </div>
+
 </div>
 `};
