@@ -29,9 +29,7 @@ export default {
 
     const allowedOrigins = new Set([
       "https://cs2.frudotz.com",
-      "http://cs2.frudotz.com",
-      "https://frudotz.github.io",
-      "http://frudotz.github.io"
+      "https://frudotz.github.io"
     ])
 
     const origin = request.headers.get("Origin") || ""

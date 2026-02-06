@@ -2,7 +2,6 @@ const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
-const turnstileWrapper = document.getElementById("turnstileWrapper")
 
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
@@ -49,7 +48,6 @@ async function getProfile(){
     </div>
   `
 
-  turnstileWrapper.classList.add("is-visible")
   const turnstileToken = document.querySelector("[name='cf-turnstile-response']")?.value
 
   if(!turnstileToken){
@@ -73,7 +71,6 @@ async function getProfile(){
   if(window.turnstile){
     window.turnstile.reset()
   }
-  turnstileWrapper.classList.remove("is-visible")
 
   if(data.error){
     result.innerHTML="Kullanıcı bulunamadı."
