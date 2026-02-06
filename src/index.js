@@ -95,16 +95,27 @@ export default {
       }
 
 const calcRes = await fetch(
-  `https://steamdb.info/calculator/${steamid}/`,
-  { headers:{ "User-Agent":"Mozilla/5.0" } }
+  `https://steamdb.info/calculator/${steamid}`,
+  {
+    headers:{
+      "User-Agent":"Mozilla/5.0",
+      "Accept":"text/html"
+    }
+  }
 )
 
-let accountValue = null
+let accountValue = "0"
 
 if(calcRes.ok){
   const html = await calcRes.text()
-  const match = html.match(/\$([0-9,]+)/)
-  if(match) accountValue = match[1]
+
+  const match = html.match(
+    /<div class="prices">[\s\S]*?<span>\$([0-9,]+)<\/span>/
+  )
+
+  if(match){
+    accountValue = match[1].replace(/,/g,"")
+  }
 }
       
       // FACEIT STATS
