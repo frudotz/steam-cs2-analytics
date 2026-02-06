@@ -186,6 +186,22 @@ button{
   pointer-events:none;
 }
 
+.verified{
+  color:#22c55e;
+  font-size:14px;
+  margin-left:6px;
+}
+
+.trust-badge{
+  position:absolute;
+  right:14px;
+  top:14px;
+  background:#020617;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+}
+
 .loading{
   text-align:center;
   margin-top:20px;
