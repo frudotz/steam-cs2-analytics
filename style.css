@@ -27,7 +27,6 @@ h2{
 }
 
 input,button{
-  width:100%;
   padding:12px;
   border-radius:10px;
   border:none;
@@ -298,6 +297,34 @@ button{
 .wl-loss{
   color:#ef4444;
   font-weight:700;
+}
+
+.faceit-substats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.mini-stat{
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+  font-weight:600;
+}
+
+.mini-stat span{
+  display:block;
+  font-size:11px;
+  opacity:.7;
+}
+
+.elo-up{
+  color:#22c55e;
+}
+
+.elo-down{
+  color:#ef4444;
 }
 
 a{color:#818cf8;text-decoration:none;}
