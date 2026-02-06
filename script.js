@@ -69,12 +69,21 @@ if(input.includes("steamcommunity.com")){
   const bans=data.bans;
   const faceit=data.faceit;
 
+  const faceitStats = data.faceitStats
+const faceitHistory = data.faceitHistory
+  
  let faceitLevel = null
 let faceitBadgeURL = null
 
+  
 if(faceit?.games?.cs2?.skill_level){
   faceitLevel = faceit.games.cs2.skill_level
   faceitBadgeURL = `https://faceitfinder.com/resources/ranks/skill_level_${faceitLevel}_lg.png`
+
+  let winrate = "?"
+if(faceitStats?.lifetime?.["Win Rate %"]){
+  winrate = faceitStats.lifetime["Win Rate %"]
+}
 }
 
   
@@ -176,8 +185,30 @@ const gameBanIcon = bans.NumberOfGameBans > 0
 
 <div class="card">
 <b>FACEIT</b><br>
-Nick: ${faceit.nickname}<br>
-Level: ${faceit.games.cs2.skill_level}<br>
-ELO: ${faceit.games.cs2.faceit_elo}
+
+<div class="stat">
+  ${faceit.nickname}
+  <span>Nick</span>
+</div>
+
+<div class="stat">
+  ${faceit.games.cs2.skill_level}
+  <span>Level</span>
+</div>
+
+<div class="stat">
+  ${faceit.games.cs2.faceit_elo}
+  <span>ELO</span>
+</div>
+
+<div class="stat">
+  ${winrate}%
+  <span>Winrate</span>
+</div>
+
+<div class="stat">
+  <div class="wl-strip">${wlStrip}</div>
+  <span>Son 5 Maç</span>
+</div>
 </div>
 `};
