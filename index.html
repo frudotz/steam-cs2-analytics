@@ -25,7 +25,8 @@
 <!-- Includes & Preloads for Cache -->
 <link rel="icon" href="https://raw.githubusercontent.com/frudotz/frudotz.github.io/main/favicon.ico"> <!-- Icon -->
 <link rel="stylesheet" type="text/css" href="style.css">
-<script src="script.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="script.js" defer></script>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css">
 </head>
@@ -33,14 +34,33 @@
 <body>
 
 <div class="container">
+  <header class="hero">
+    <div class="hero-glow"></div>
+    <a class="hero-github" href="https://github.com/frudotz" target="_blank" rel="noreferrer">
+      <i class="fa-brands fa-github"></i>
+    </a>
+    <p class="hero-tag">CS2 Güven & Profil Analizi</p>
+    <h1>CS2 Profil Analizi</h1>
+    <p class="hero-sub">Steam & Faceit verilerini güven skoru ile birleştir, riskleri tek bakışta gör.</p>
+  </header>
 
 <h2>SteamID Gir</h2>
 
 <div class="search-box">
   <input id="steamid"
        placeholder="SteamID / Nick / URL"
-       onkeydown="if(event.key==='Enter') getProfile()" />
-  <button onclick="getProfile()">Getir</button>
+       autocomplete="off" />
+  <button id="searchBtn">Getir</button>
+</div>
+
+<div class="security-row">
+  <div class="security-note">
+    <i class="fa-solid fa-shield-halved"></i>
+    Hız limiti ve captcha doğrulaması aktif.
+  </div>
+  <div id="turnstileWrapper" class="turnstile-wrapper">
+    <div class="cf-turnstile" data-sitekey="PASTE_TURNSTILE_SITE_KEY"></div>
+  </div>
 </div>
 
 <div id="result"></div>
