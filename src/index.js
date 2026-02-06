@@ -103,7 +103,7 @@ let accountValue = null
 
 if(calcRes.ok){
   const html = await calcRes.text()
-  const match = html.match(/Account value<\/th>\s*<td>\$([0-9,]+)/)
+  const match = html.match(/\$([0-9,]+)/)
   if(match) accountValue = match[1]
 }
       
