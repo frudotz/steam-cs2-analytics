@@ -8,6 +8,15 @@ steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
 })
 
+setInitialSteamIdFromPath()
+
+function setInitialSteamIdFromPath(){
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, "")
+  if(!path) return
+  steamInput.value = decodeURIComponent(path)
+  getProfile()
+}
+
 function calculateAge(ts){
   if(!ts) return "Gizli"
   return Math.floor((Date.now()-ts*1000)/(1000*60*60*24*365))
@@ -159,12 +168,12 @@ async function getProfile(){
     </div>
 
     <div class="stat">
-      ${bans.NumberOfVACBans>0?'<i class="fa-solid fa-xmark red"></i>':'<i class="fa-solid fa-check green"></i>'}
+      ${bans.NumberOfVACBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
       <span>VAC Ban</span>
     </div>
 
     <div class="stat">
-      ${bans.NumberOfGameBans>0?'<i class="fa-solid fa-xmark red"></i>':'<i class="fa-solid fa-check green"></i>'}
+      ${bans.NumberOfGameBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
       <span>Game Ban</span>
     </div>
 
