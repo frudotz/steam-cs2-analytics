@@ -5,16 +5,17 @@ function calculateAccountAge(ts){
   return Math.floor((now-created)/(1000*60*60*24*365));
 }
 
-function calculateTrustScore(age,hours,bans){
-  let score=0;
-  if(typeof age==="number") score+=Math.min(age*2,30);
-  if(typeof hours==="number") score+=Math.min(hours/10,50);
-  if(bans.NumberOfVACBans===0 && bans.NumberOfGameBans===0){
-    score+=20;
-  }else{
-    score=Math.min(score,40);
-  }
-  return Math.floor(score);
+function trustScore(age,hours,kd,winrate,vac){
+
+  let score=0
+
+  if(age!=="Gizli") score+=age*2
+  if(hours!=="Gizli") score+=hours/20
+  if(kd!=="?") score+=kd*10
+  if(winrate!=="?") score+=winrate/2
+  if(vac>0) score-=40
+
+  return Math.max(0,Math.min(100,Math.floor(score)))
 }
 
 async function getFaceitBySteam(steamid){
@@ -75,6 +76,17 @@ const faceitHistory = data.faceitHistory
  let faceitLevel = null
 let faceitBadgeURL = null
 
+  let akHs="?", m4Hs="?", awpHs="?"
+
+if(faceitStats?.segments){
+  const ak = faceitStats.segments.find(s=>s.label==="AK-47")
+  const m4 = faceitStats.segments.find(s=>s.label==="M4A1")
+  const awp = faceitStats.segments.find(s=>s.label==="AWP")
+
+  if(ak) akHs = ak.stats["Headshots %"]
+  if(m4) m4Hs = m4.stats["Headshots %"]
+  if(awp) awpHs = awp.stats["Headshots %"]
+}
   
 if(faceit?.games?.cs2?.skill_level){
   faceitLevel = faceit.games.cs2.skill_level
@@ -112,6 +124,20 @@ if(faceitHistory?.items){
       : `<span class="wl-loss">L</span>`
   })
 }
+
+  let mapStats = {}
+
+if(faceitHistory?.items){
+  faceitHistory.items.slice(0,10).forEach(m=>{
+    const map = m.map || "Bilinmeyen"
+    mapStats[map] = (mapStats[map] || 0) + 1
+  })
+}
+
+let mapListHTML = ""
+Object.entries(mapStats).forEach(([map,count])=>{
+  mapListHTML += `<div class="mini-stat">${map}<span>${count} maç</span></div>`
+})
   
   const age=calculateAccountAge(p.timecreated);
   const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli";
@@ -253,5 +279,14 @@ const gameBanIcon = bans.NumberOfGameBans > 0
 
   </div>
 
+</div>
+<div class="faceit-substats">
+  <div class="mini-stat">${akHs}%<span>AK HS%</span></div>
+  <div class="mini-stat">${m4Hs}%<span>M4 HS%</span></div>
+  <div class="mini-stat">${awpHs}%<span>AWP HS%</span></div>
+</div>
+
+<div class="faceit-substats">
+  ${mapListHTML}
 </div>
 `};
