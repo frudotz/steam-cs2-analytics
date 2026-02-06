@@ -120,9 +120,16 @@ if(faceit?.player_id){
 }
       
       return new Response(
-        JSON.stringify({ profile, cs2, bans, faceit }),
-        { headers:corsHeaders }
-      )
+  JSON.stringify({
+    profile,
+    cs2,
+    bans,
+    faceit,
+    faceitStats,
+    faceitHistory
+  }),
+  { headers:corsHeaders }
+)
 
     }catch(err){
 
