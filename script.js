@@ -1,296 +1,175 @@
-function calculateAccountAge(ts){
-  if(!ts) return "Gizli";
-  const created=new Date(ts*1000);
-  const now=new Date();
-  return Math.floor((now-created)/(1000*60*60*24*365));
+const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
+
+document.getElementById("searchBtn").addEventListener("click", getProfile)
+document.getElementById("steamid").addEventListener("keydown", e=>{
+  if(e.key==="Enter") getProfile()
+})
+
+function calculateAge(ts){
+  if(!ts) return "Gizli"
+  return Math.floor((Date.now()-ts*1000)/(1000*60*60*24*365))
 }
 
-function calculateTrustScore(age,hours,kd,winrate,vac,accountValue,elo){
-
+function calculateTrustScore(age,hours,winrate,vac,elo,power){
   let score=0
 
-  if(age!=="Gizli") score+=age*1.5
-  if(hours!=="Gizli") score+=hours/25
-  if(kd!=="?") score+=kd*8
-  if(winrate!=="?") score+=winrate*0.4
-  if(elo) score+=elo/200
-
-  if(accountValue){
-    score+=parseInt(accountValue.replace(/,/g,""))/200
-  }
-
+  if(age!=="Gizli") score+=age*1.2
+  if(hours!=="Gizli") score+=hours/20
+  if(winrate!=="?") score+=winrate*0.5
+  if(elo) score+=elo/250
+  if(power) score+=power/60
   if(vac>0) score-=50
 
   return Math.max(0,Math.min(100,Math.floor(score)))
 }
 
-function trustScore(age,hours,kd,winrate,vac){
-
-  let score=0
-
-  if(age!=="Gizli") score+=age*2
-  if(hours!=="Gizli") score+=hours/20
-  if(kd!=="?") score+=kd*10
-  if(winrate!=="?") score+=winrate/2
-  if(vac>0) score-=40
-
-  return Math.max(0,Math.min(100,Math.floor(score)))
-}
-
-function trustBadge(score){
-  if(score>=90) return "💎 Seçkin"
-  if(score>=70) return "✅ Güvenilir"
-  if(score>=40) return "🍒 Normal"
-  return "⚠️ Riskli"
-}
-
-async function getFaceitBySteam(steamid){
-
-  const res = await fetch(
-    "https://open.faceit.com/data/v4/players?game=cs2&game_player_id=" + steamid,
-    {
-      headers:{
-        "Authorization":"Bearer " + FACEIT_KEY
-      }
-    }
-  )
-
-  if(!res.ok) return null
-
-  return await res.json()
-}
-
 async function getProfile(){
 
-  let input = document.getElementById("steamid").value.trim()
-if(!input) return
+  let input=document.getElementById("steamid").value.trim()
+  if(!input) return
 
-if(input.includes("steamcommunity.com")){
-  try{
-    const u = new URL(input)
+  const result=document.getElementById("result")
+  result.innerHTML="Yükleniyor..."
 
-    if(u.pathname.includes("/id/"))
-      input = u.pathname.split("/id/")[1].split("/")[0]
-
-    if(u.pathname.includes("/profiles/"))
-      input = u.pathname.split("/profiles/")[1].split("/")[0]
-  }catch{}
-}
-
-  const result=document.getElementById("result");
-  result.innerHTML='<div class="loading">Yükleniyor...</div>';
-
-  const res=await fetch(
-    "https://steam-cs2-analytics.frudotz.workers.dev/?steamid="+encodeURIComponent(input)
-  );
-
-  const data=await res.json();
+  const res=await fetch(API_URL+"?steamid="+encodeURIComponent(input))
+  const data=await res.json()
 
   if(data.error){
-    result.innerHTML='<div class="error">'+data.error+'</div>';
-    return;
+    result.innerHTML="Kullanıcı bulunamadı."
+    return
   }
 
-  const p=data.profile;
-  const cs2=data.cs2;
-  const bans=data.bans;
-  const faceit=data.faceit;
+  const p=data.profile
+  const cs2=data.cs2
+  const bans=data.bans
+  const faceit=data.faceit
+  const faceitStats=data.faceitStats
+  const faceitHistory=data.faceitHistory
+  const gamesCount=data.gamesCount
+  const accountPower=data.accountPower
 
-  const faceitStats = data.faceitStats
-const faceitHistory = data.faceitHistory
-  const accountValue = data.accountValue
+  const age=calculateAge(p.timecreated)
+  const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli"
+  const last2w=cs2?Math.floor((cs2.playtime_2weeks||0)/60):0
 
-let faceitMatches = "?"
-let adr = "?"
-let faceitVerified = false
+  let winrate="?"
+  let elo=null
+  if(faceitStats?.lifetime?.["Win Rate %"])
+    winrate=parseInt(faceitStats.lifetime["Win Rate %"])
 
-if(faceitStats?.lifetime){
-  faceitMatches = faceitStats.lifetime.Matches || "?"
-  adr = faceitStats.lifetime["Average Damage per Round"] || "?"
-}
+  if(faceit?.games?.cs2?.faceit_elo)
+    elo=faceit.games.cs2.faceit_elo
 
-if(faceit?.verified === true){
-  faceitVerified = true
-}
-  
- let faceitLevel = null
-let faceitBadgeURL = null
-  
-if(faceit?.games?.cs2?.skill_level){
-  faceitLevel = faceit.games.cs2.skill_level
-  faceitBadgeURL = `https://faceitfinder.com/resources/ranks/skill_level_${faceitLevel}_lg.png`
-}
-
-  let winrate = "?"
-if(faceitStats?.lifetime?.["Win Rate %"]){
-  winrate = faceitStats.lifetime["Win Rate %"]
-}
-
-  let kd = "?"
-let hs = "?"
-let eloDiff = "?"
-
-if(faceitStats?.lifetime){
-  kd = faceitStats.lifetime["Average K/D Ratio"] || "?"
-  hs = faceitStats.lifetime["Average Headshots %"] || "?"
-}
-
-if(faceitHistory?.items?.length){
-  const last = faceitHistory.items[0]
-  const diff = last.results?.elo_change
-  if(typeof diff === "number"){
-    eloDiff = diff > 0 ? `+${diff}` : `${diff}`
+  let wlStrip="-----"
+  if(faceitHistory?.items){
+    wlStrip=faceitHistory.items
+      .slice(0,5)
+      .map(m=>m.results.winner===faceit.player_id?"W":"L")
+      .join(" ")
   }
-}
 
-let wlStrip = ""
-if(faceitHistory?.items){
-  faceitHistory.items.forEach(m=>{
-    const win = m.results?.winner === m.team_id
-    wlStrip += win
-      ? `<span class="wl-win">W</span>`
-      : `<span class="wl-loss">L</span>`
-  })
-}
-  
-  const age=calculateAccountAge(p.timecreated);
-  const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli";
-  const last2w=cs2?.playtime_2weeks
-    ?Math.floor(cs2.playtime_2weeks/60):0;
+  const trust=calculateTrustScore(age,hours,winrate,bans.NumberOfVACBans,elo,accountPower)
 
-  const trust=calculateTrustScore(age,hours,bans);
-
-  const trustColor=
-    trust>70?"#22c55e":
-    trust>40?"#facc15":"#ef4444";
-
-  let hoursEmoji = "🤙"
-if(hours >= 2000) hoursEmoji = "🫡"
-else if(hours >= 1000) hoursEmoji = "🚀"
-else if(hours < 500) hoursEmoji = "😘"
-
-const avgDaily = Math.round(last2w / 14)
-const activeEmoji = avgDaily >= 5 ? "👌" : "⚡"
-
-const vacIcon = bans.NumberOfVACBans > 0
-  ? '<i class="fas fa-check ban-bad"></i>'
-  : '<i class="fas fa-times ban-ok"></i>'
-
-const gameBanIcon = bans.NumberOfGameBans > 0
-  ? '<i class="fas fa-check ban-bad"></i>'
-  : '<i class="fas fa-times ban-ok"></i>'
+  let faceitBadgeURL=null
+  if(faceit?.games?.cs2?.skill_level){
+    const lvl=faceit.games.cs2.skill_level
+    faceitBadgeURL=`https://faceitfinder.com/resources/ranks/skill_level_${lvl}_lg.png`
+  }
 
   result.innerHTML=`
 
-<div class="card">
+<!-- STEAM PROFILE -->
+<div class="card profile-card">
+
   <div class="profile-row">
-    <div class="avatar">
-      <img src="${p.avatarfull}">
-    </div>
+    <img class="avatar" src="${p.avatarfull}">
     <div>
       <div class="name">${p.personaname}</div>
+
       <div class="status-pill ${p.personastate===1?'status-online':'status-offline'}">
         ${p.personastate===1?'🟢 Online':'🔴 Offline'}
       </div>
-      <div>Hesap Yaşı: ${age} yıl</div>
-      <a href="${p.profileurl}" target="_blank">Profili Aç</a>
+
+      <div class="sub">Hesap Yaşı: ${age} yıl</div>
+      <a href="${p.profileurl}" target="_blank">Steam Profili</a>
     </div>
-<div class="faceit-rank-badge">
-  <img src="${faceitBadgeURL}" alt="FACEIT Level ${faceitLevel}">
-</div>
   </div>
+
+  <div class="profile-badges">
+
+    <div class="steam-games-badge">
+      <img src="https://community.fastly.steamstatic.com/public/images/badges/13_gamecollector/250_80.png">
+      <div class="badge-count">${gamesCount}</div>
+    </div>
+
+    ${faceitBadgeURL?`
+    <div class="faceit-rank-badge">
+      <img src="${faceitBadgeURL}">
+    </div>`:""}
+
+  </div>
+
 </div>
 
+<!-- CS2 -->
 <div class="card">
-  <div>CS2 Bilgileri</div>
+  <div class="card-title">CS2</div>
+
   <div class="grid-4">
+
     <div class="stat">
-  ${hours} ${hoursEmoji}
-  <span>Toplam Saat</span>
-</div>
+      ${hours}
+      <span>Toplam Saat</span>
+    </div>
 
-<div class="stat">
-  ${last2w} ${activeEmoji}
-  <span>Son 2 Hafta</span>
-</div>
+    <div class="stat">
+      ${last2w}
+      <span>Son 2 Hafta</span>
+    </div>
 
-<div class="stat">
-  ${vacIcon}
-  <span>VAC Ban</span>
-</div>
+    <div class="stat">
+      ${bans.NumberOfVACBans>0?'<i class="fa-solid fa-xmark red"></i>':'<i class="fa-solid fa-check green"></i>'}
+      <span>VAC Ban</span>
+    </div>
 
-<div class="stat">
-  ${gameBanIcon}
-  <span>Game Ban</span>
-</div>
-
-<div class="mini-stat">
-  $${accountValue}
-  <span>Hesap Değeri</span>
-</div>
+    <div class="stat">
+      ${bans.NumberOfGameBans>0?'<i class="fa-solid fa-xmark red"></i>':'<i class="fa-solid fa-check green"></i>'}
+      <span>Game Ban</span>
+    </div>
 
   </div>
 </div>
 
+<!-- FACEIT -->
 <div class="card">
-  <div>Güven Skoru</div>
+  <div class="card-title">FACEIT</div>
 
-  <div class="trust-badge">
-  ${trustBadge(trust)}
+  ${faceit?`
+  <div class="faceit-name">${faceit.nickname}</div>
+
+  <div class="faceit-substats">
+    <div class="mini-stat">${elo||"?"}<span>ELO</span></div>
+    <div class="mini-stat">${winrate}%<span>Winrate</span></div>
+    <div class="mini-stat">${wlStrip}<span>Son 5 Maç</span></div>
+  </div>
+  `:`Faceit profili yok`}
+
 </div>
+
+<!-- TRUST -->
+<div class="card">
+  <div class="card-title">Güven Skoru</div>
 
   <div class="trust-wrapper">
-
-  <div class="trust-bar-outer">
-    <div class="trust-bar-inner">
-
-      <div 
-        class="trust-bar-fill ${trust>70?'trust-good':trust>40?'trust-mid':'trust-bad'}"
-        style="width:${trust}%"
-      ></div>
-
-      <div class="trust-text">
-        ${trust} / 100
+    ${trust}/100
+    <div class="trust-bar-bg">
+      <div class="trust-bar-fill"
+        style="width:${trust}%;
+        background:${trust>70?'#22c55e':trust>40?'#facc15':'#ef4444'}">
       </div>
-
     </div>
   </div>
 
 </div>
-</div>
-
-<div class="card faceit-card">
-
-  <div class="faceit-nick">
-  ${faceit.nickname}
-  ${faceitVerified ? `<span class="verified">✔</span>` : ``}
-</div>
-
-  <div class="faceit-stats-row">
-
-  <div class="faceit-col">
-    <div class="faceit-big">${faceit.games.cs2.faceit_elo}</div>
-    <span>ELO</span>
-  </div>
-
-  <div class="faceit-col">
-    <div class="faceit-big">${winrate}%</div>
-    <span>WinRate</span>
-  </div>
-
-  <div class="faceit-col">
-    <div class="faceit-big">${faceitMatches}</div>
-    <span>Maç</span>
-  </div>
-
-</div>
-
-<div class="faceit-substats">
-
-  <div class="mini-stat">${kd}<span>K/D</span></div>
-  <div class="mini-stat">${adr}<span>ADR</span></div>
-
-</div>
-
-</div>
-`};
+`
+}
