@@ -5,6 +5,18 @@ function calculateAccountAge(ts){
   return Math.floor((now-created)/(1000*60*60*24*365));
 }
 
+function calculateTrustScore(age,hours,kd,winrate,vac){
+  let score=0
+
+  if(age!=="Gizli") score+=age*2
+  if(hours!=="Gizli") score+=hours/20
+  if(kd!=="?") score+=kd*10
+  if(winrate!=="?") score+=winrate/2
+  if(vac>0) score-=40
+
+  return Math.max(0,Math.min(100,Math.floor(score)))
+}
+
 function trustScore(age,hours,kd,winrate,vac){
 
   let score=0
