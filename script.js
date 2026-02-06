@@ -5,14 +5,21 @@ function calculateAccountAge(ts){
   return Math.floor((now-created)/(1000*60*60*24*365));
 }
 
-function calculateTrustScore(age,hours,kd,winrate,vac){
+function calculateTrustScore(age,hours,kd,winrate,vac,accountValue,elo){
+
   let score=0
 
-  if(age!=="Gizli") score+=age*2
-  if(hours!=="Gizli") score+=hours/20
-  if(kd!=="?") score+=kd*10
-  if(winrate!=="?") score+=winrate/2
-  if(vac>0) score-=40
+  if(age!=="Gizli") score+=age*1.5
+  if(hours!=="Gizli") score+=hours/25
+  if(kd!=="?") score+=kd*8
+  if(winrate!=="?") score+=winrate*0.4
+  if(elo) score+=elo/200
+
+  if(accountValue){
+    score+=parseInt(accountValue.replace(/,/g,""))/200
+  }
+
+  if(vac>0) score-=50
 
   return Math.max(0,Math.min(100,Math.floor(score)))
 }
@@ -28,6 +35,13 @@ function trustScore(age,hours,kd,winrate,vac){
   if(vac>0) score-=40
 
   return Math.max(0,Math.min(100,Math.floor(score)))
+}
+
+function trustBadge(score){
+  if(score>=90) return "💎 Seçkin"
+  if(score>=70) return "✅ Güvenilir"
+  if(score>=40) return "🍒 Normal"
+  return "⚠️ Riskli"
 }
 
 async function getFaceitBySteam(steamid){
@@ -84,6 +98,19 @@ if(input.includes("steamcommunity.com")){
 
   const faceitStats = data.faceitStats
 const faceitHistory = data.faceitHistory
+
+let faceitMatches = "?"
+let adr = "?"
+let faceitVerified = false
+
+if(faceitStats?.lifetime){
+  faceitMatches = faceitStats.lifetime.Matches || "?"
+  adr = faceitStats.lifetime["Average Damage per Round"] || "?"
+}
+
+if(faceit?.verified === true){
+  faceitVerified = true
+}
   
  let faceitLevel = null
 let faceitBadgeURL = null
@@ -195,11 +222,21 @@ const gameBanIcon = bans.NumberOfGameBans > 0
   ${gameBanIcon}
   <span>Game Ban</span>
 </div>
+
+<div class="mini-stat">
+  $${accountValue}
+  <span>Hesap Değeri</span>
+</div>
+
   </div>
 </div>
 
 <div class="card">
   <div>Güven Skoru</div>
+
+  <div class="trust-badge">
+  ${trustBadge(trust)}
+</div>
 
   <div class="trust-wrapper">
 
@@ -224,46 +261,35 @@ const gameBanIcon = bans.NumberOfGameBans > 0
 <div class="card faceit-card">
 
   <div class="faceit-nick">
-    ${faceit.nickname}
-  </div>
+  ${faceit.nickname}
+  ${faceitVerified ? `<span class="verified">✔</span>` : ``}
+</div>
 
   <div class="faceit-stats-row">
 
-    <div class="faceit-col">
-      <div class="faceit-big">${faceit.games.cs2.faceit_elo}</div>
-      <span>ELO</span>
-    </div>
-
-    <div class="faceit-col">
-      <div class="faceit-big">${winrate}%</div>
-      <span>WinRate</span>
-    </div>
-
-    <div class="faceit-col">
-      <div class="wl-strip">${wlStrip}</div>
-      <span>W/L Oranı</span>
-    </div>
-
+  <div class="faceit-col">
+    <div class="faceit-big">${faceit.games.cs2.faceit_elo}</div>
+    <span>ELO</span>
   </div>
 
-  <div class="faceit-substats">
-
-    <div class="mini-stat">
-      ${kd}
-      <span>K/D</span>
-    </div>
-
-    <div class="mini-stat">
-      ${hs}%
-      <span>HS%</span>
-    </div>
-
-    <div class="mini-stat ${eloDiff.startsWith('+')?'elo-up':'elo-down'}">
-      ${eloDiff}
-      <span>Son Maç ELO</span>
-    </div>
-
+  <div class="faceit-col">
+    <div class="faceit-big">${winrate}%</div>
+    <span>WinRate</span>
   </div>
+
+  <div class="faceit-col">
+    <div class="faceit-big">${faceitMatches}</div>
+    <span>Maç</span>
+  </div>
+
+</div>
+
+<div class="faceit-substats">
+
+  <div class="mini-stat">${kd}<span>K/D</span></div>
+  <div class="mini-stat">${adr}<span>ADR</span></div>
+
+</div>
 
 </div>
 `};
