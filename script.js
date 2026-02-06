@@ -194,26 +194,27 @@ const gameBanIcon = bans.NumberOfGameBans > 0
 
 <div class="card faceit-card">
 
-  <div class="faceit-top">
-    <img class="faceit-rank-img" src="${faceitBadgeURL}">
-    <div class="faceit-nick">${faceit.nickname}</div>
+  <div class="faceit-nick">
+    ${faceit.nickname}
   </div>
 
-  <div class="faceit-elo">
-    ${faceit.games.cs2.faceit_elo}
-    <span>ELO</span>
-  </div>
+  <div class="faceit-stats-row">
 
-  <div class="faceit-winrate-wrap">
-    <div class="faceit-winrate-text">${winrate}% Winrate</div>
-
-    <div class="faceit-winrate-bar">
-      <div class="faceit-winrate-fill" style="width:${winrate}%"></div>
+    <div class="faceit-col">
+      <div class="faceit-big">${faceit.games.cs2.faceit_elo}</div>
+      <span>ELO</span>
     </div>
-  </div>
 
-  <div class="faceit-history">
-    ${wlStrip}
+    <div class="faceit-col">
+      <div class="faceit-big">${winrate}%</div>
+      <span>WinRate</span>
+    </div>
+
+    <div class="faceit-col">
+      <div class="wl-strip">${wlStrip}</div>
+      <span>W/L Oranı</span>
+    </div>
+
   </div>
 
 </div>
