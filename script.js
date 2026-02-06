@@ -1,7 +1,10 @@
 const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 
-document.getElementById("searchBtn").addEventListener("click", getProfile)
-document.getElementById("steamid").addEventListener("keydown", e=>{
+const searchBtn = document.getElementById("searchBtn")
+const steamInput = document.getElementById("steamid")
+
+searchBtn.addEventListener("click", getProfile)
+steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
 })
 
@@ -25,14 +28,40 @@ function calculateTrustScore(age,hours,winrate,vac,elo,power){
 
 async function getProfile(){
 
-  let input=document.getElementById("steamid").value.trim()
+  let input=steamInput.value.trim()
   if(!input) return
 
   const result=document.getElementById("result")
-  result.innerHTML="Yükleniyor..."
+  result.innerHTML=`
+    <div class="card loading-card">
+      <div class="loader"></div>
+      <div>Analiz hazırlanıyor...</div>
+    </div>
+  `
 
-  const res=await fetch(API_URL+"?steamid="+encodeURIComponent(input))
+  const turnstileToken = document.querySelector("[name='cf-turnstile-response']")?.value
+
+  if(!turnstileToken){
+    result.innerHTML="Lütfen captcha doğrulamasını tamamla."
+    return
+  }
+
+  const res=await fetch(API_URL+"?steamid="+encodeURIComponent(input), {
+    headers: {
+      "X-Turnstile-Token": turnstileToken
+    }
+  })
+
+  if(!res.ok){
+    const errorText = await res.text()
+    result.innerHTML=`Sunucu hatası: ${errorText}`
+    return
+  }
   const data=await res.json()
+
+  if(window.turnstile){
+    window.turnstile.reset()
+  }
 
   if(data.error){
     result.innerHTML="Kullanıcı bulunamadı."
@@ -69,6 +98,8 @@ async function getProfile(){
   }
 
   const trust=calculateTrustScore(age,hours,winrate,bans.NumberOfVACBans,elo,accountPower)
+  const trustLabel=trust>70?"Yüksek":trust>40?"Orta":"Düşük"
+  const trustClass=trust>70?"trust-high":trust>40?"trust-mid":"trust-low"
 
   let faceitBadgeURL=null
   if(faceit?.games?.cs2?.skill_level){
@@ -79,7 +110,7 @@ async function getProfile(){
   result.innerHTML=`
 
 <!-- STEAM PROFILE -->
-<div class="card profile-card">
+<div class="card profile-card glow-card">
 
   <div class="profile-row">
     <img class="avatar" src="${p.avatarfull}">
@@ -112,7 +143,7 @@ async function getProfile(){
 </div>
 
 <!-- CS2 -->
-<div class="card">
+<div class="card glow-card">
   <div class="card-title">CS2</div>
 
   <div class="grid-4">
@@ -141,7 +172,7 @@ async function getProfile(){
 </div>
 
 <!-- FACEIT -->
-<div class="card">
+<div class="card glow-card">
   <div class="card-title">FACEIT</div>
 
   ${faceit?`
@@ -157,15 +188,17 @@ async function getProfile(){
 </div>
 
 <!-- TRUST -->
-<div class="card">
+<div class="card glow-card">
   <div class="card-title">Güven Skoru</div>
 
   <div class="trust-wrapper">
-    ${trust}/100
+    <div class="trust-header">
+      <span class="trust-score">${trust}/100</span>
+      <span class="trust-label ${trustClass}">${trustLabel}</span>
+    </div>
     <div class="trust-bar-bg">
       <div class="trust-bar-fill"
-        style="width:${trust}%;
-        background:${trust>70?'#22c55e':trust>40?'#facc15':'#ef4444'}">
+        style="width:${trust}%;">
       </div>
     </div>
   </div>
