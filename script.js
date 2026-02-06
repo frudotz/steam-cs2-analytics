@@ -79,13 +79,22 @@ let faceitBadgeURL = null
 if(faceit?.games?.cs2?.skill_level){
   faceitLevel = faceit.games.cs2.skill_level
   faceitBadgeURL = `https://faceitfinder.com/resources/ranks/skill_level_${faceitLevel}_lg.png`
+}
 
   let winrate = "?"
 if(faceitStats?.lifetime?.["Win Rate %"]){
   winrate = faceitStats.lifetime["Win Rate %"]
 }
-}
 
+let wlStrip = ""
+if(faceitHistory?.items){
+  faceitHistory.items.forEach(m=>{
+    const win = m.results?.winner === m.team_id
+    wlStrip += win
+      ? `<span class="wl-win">W</span>`
+      : `<span class="wl-loss">L</span>`
+  })
+}
   
   const age=calculateAccountAge(p.timecreated);
   const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli";
