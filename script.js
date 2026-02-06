@@ -86,6 +86,23 @@ if(faceitStats?.lifetime?.["Win Rate %"]){
   winrate = faceitStats.lifetime["Win Rate %"]
 }
 
+  let kd = "?"
+let hs = "?"
+let eloDiff = "?"
+
+if(faceitStats?.lifetime){
+  kd = faceitStats.lifetime["Average K/D Ratio"] || "?"
+  hs = faceitStats.lifetime["Average Headshots %"] || "?"
+}
+
+if(faceitHistory?.items?.length){
+  const last = faceitHistory.items[0]
+  const diff = last.results?.elo_change
+  if(typeof diff === "number"){
+    eloDiff = diff > 0 ? `+${diff}` : `${diff}`
+  }
+}
+
 let wlStrip = ""
 if(faceitHistory?.items){
   faceitHistory.items.forEach(m=>{
@@ -213,6 +230,25 @@ const gameBanIcon = bans.NumberOfGameBans > 0
     <div class="faceit-col">
       <div class="wl-strip">${wlStrip}</div>
       <span>W/L Oranı</span>
+    </div>
+
+  </div>
+
+  <div class="faceit-substats">
+
+    <div class="mini-stat">
+      ${kd}
+      <span>K/D</span>
+    </div>
+
+    <div class="mini-stat">
+      ${hs}%
+      <span>HS%</span>
+    </div>
+
+    <div class="mini-stat ${eloDiff.startsWith('+')?'elo-up':'elo-down'}">
+      ${eloDiff}
+      <span>Son Maç ELO</span>
     </div>
 
   </div>
