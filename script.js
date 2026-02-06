@@ -88,7 +88,7 @@ const faceitHistory = data.faceitHistory
  let faceitLevel = null
 let faceitBadgeURL = null
 
-  let akHs="?", m4Hs="?", awpHs="?"
+  let akHs=null, m4Hs=null, awpHs=null
 
 if(faceitStats?.segments){
   const ak = faceitStats.segments.find(s=>s.label==="AK-47")
@@ -141,7 +141,7 @@ if(faceitHistory?.items){
 
 if(faceitHistory?.items){
   faceitHistory.items.slice(0,10).forEach(m=>{
-    const map = m.map || "Bilinmeyen"
+    const map = m.map || m.stats?.Map || "Bilinmeyen"
     mapStats[map] = (mapStats[map] || 0) + 1
   })
 }
@@ -293,9 +293,9 @@ const gameBanIcon = bans.NumberOfGameBans > 0
 
 </div>
 <div class="faceit-substats">
-  <div class="mini-stat">${akHs}%<span>AK HS%</span></div>
-  <div class="mini-stat">${m4Hs}%<span>M4 HS%</span></div>
-  <div class="mini-stat">${awpHs}%<span>AWP HS%</span></div>
+${akHs ? `<div class="mini-stat">${akHs}%<span>AK HS%</span></div>` : ``}
+${m4Hs ? `<div class="mini-stat">${m4Hs}%<span>M4 HS%</span></div>` : ``}
+${awpHs ? `<div class="mini-stat">${awpHs}%<span>AWP HS%</span></div>` : ``}
 </div>
 
 <div class="faceit-substats">
