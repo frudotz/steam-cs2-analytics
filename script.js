@@ -2,7 +2,10 @@ const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
+<<<<<<< codex/implement-security-and-design-updates-38haba
 const turnstileWrapper = document.getElementById("turnstileWrapper")
+=======
+>>>>>>> main
 
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
@@ -128,7 +131,10 @@ async function getProfile(){
     </div>
   `
 
+<<<<<<< codex/implement-security-and-design-updates-38haba
   turnstileWrapper.classList.add("is-visible")
+=======
+>>>>>>> main
   const turnstileToken = document.querySelector("[name='cf-turnstile-response']")?.value
 
   if(!turnstileToken){
@@ -152,7 +158,10 @@ async function getProfile(){
   if(window.turnstile){
     window.turnstile.reset()
   }
+<<<<<<< codex/implement-security-and-design-updates-38haba
   turnstileWrapper.classList.remove("is-visible")
+=======
+>>>>>>> main
 
   if(data.error){
     result.innerHTML="Kullanıcı bulunamadı."
@@ -197,6 +206,7 @@ async function getProfile(){
       .join(" ")
   }
 
+<<<<<<< codex/implement-security-and-design-updates-38haba
   const vacBans=bans?.NumberOfVACBans ?? null
   const gameBans=bans?.NumberOfGameBans ?? null
 
@@ -215,6 +225,9 @@ async function getProfile(){
     faceitStats,
     faceit
   })
+=======
+  const trust=calculateTrustScore(age,hours,winrate,bans.NumberOfVACBans,elo,accountPower)
+>>>>>>> main
   const trustLabel=trust>70?"Yüksek":trust>40?"Orta":"Düşük"
   const trustClass=trust>70?"trust-high":trust>40?"trust-mid":"trust-low"
 
@@ -307,6 +320,7 @@ async function getProfile(){
       <span>Son 2 Hafta</span>
     </div>
 
+<<<<<<< codex/implement-security-and-design-updates-38haba
     <div class="stat ${vacBans===null?"stat-neutral":vacBans>0?"stat-negative":"stat-positive"}">
       ${vacBans===null?'<span>Veri yok</span>':vacBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
       <span>VAC Ban</span>
@@ -314,6 +328,15 @@ async function getProfile(){
 
     <div class="stat ${gameBans===null?"stat-neutral":gameBans>0?"stat-negative":"stat-positive"}">
       ${gameBans===null?'<span>Veri yok</span>':gameBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+=======
+    <div class="stat">
+      ${bans.NumberOfVACBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+      <span>VAC Ban</span>
+    </div>
+
+    <div class="stat">
+      ${bans.NumberOfGameBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+>>>>>>> main
       <span>Game Ban</span>
     </div>
 
