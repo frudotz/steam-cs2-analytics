@@ -132,16 +132,17 @@ if(faceit?.player_id){
   }
 }
       
-      return new Response(
+     return new Response(
   JSON.stringify({
     profile,
     cs2,
     bans,
     faceit,
     faceitStats,
-    faceitHistory
+    faceitHistory,
+    accountValue
   }),
-  { headers:corsHeaders }
+  { headers: corsHeaders }
 )
 
     }catch(err){
