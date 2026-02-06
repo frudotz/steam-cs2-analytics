@@ -98,6 +98,7 @@ if(input.includes("steamcommunity.com")){
 
   const faceitStats = data.faceitStats
 const faceitHistory = data.faceitHistory
+  const accountValue = data.accountValue
 
 let faceitMatches = "?"
 let adr = "?"
