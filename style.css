@@ -255,60 +255,36 @@ button{
   text-align:center;
 }
 
-.faceit-top{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-}
-
-.faceit-rank-img{
-  width:90px;
-  filter:drop-shadow(0 0 12px rgba(255,100,0,.6));
-}
-
 .faceit-nick{
   font-size:18px;
   font-weight:600;
 }
 
-.faceit-elo{
-  font-size:34px;
+.faceit-stats-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  align-items:center;
+}
+
+.faceit-col{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.faceit-big{
+  font-size:28px;
   font-weight:700;
   color:#ff8a00;
 }
 
-.faceit-elo span{
-  display:block;
+.faceit-col span{
   font-size:12px;
   opacity:.7;
 }
 
-.faceit-winrate-wrap{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.faceit-winrate-text{
-  font-size:13px;
-  opacity:.8;
-}
-
-.faceit-winrate-bar{
-  width:100%;
-  height:10px;
-  background:#020617;
-  border-radius:999px;
-  overflow:hidden;
-}
-
-.faceit-winrate-fill{
-  height:100%;
-  background:linear-gradient(90deg,#22c55e,#4ade80);
-}
-
-.faceit-history{
+.wl-strip{
   display:flex;
   justify-content:center;
   gap:6px;
