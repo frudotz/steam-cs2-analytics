@@ -3,9 +3,6 @@ const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
 const turnstileWrapper = document.getElementById("turnstileWrapper")
-const turnstileElement = document.querySelector(".cf-turnstile")
-const turnstileSiteKey = turnstileElement?.dataset?.sitekey
-const isTurnstileConfigured = Boolean(turnstileSiteKey && turnstileSiteKey !== "0x4AAAAAACYnRshc6UW7llC-")
 
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
@@ -118,16 +115,20 @@ function buildBanFactor(bans){
   return vac>0 || game>0 ? 0 : 1
 }
 
-async function getProfile(){
+async function getProfile() {
 
-  let input=steamInput.value.trim()
-  if(!input) return
+  const result = document.getElementById("result")
 
-  if(!isTurnstileConfigured){
-    const result=document.getElementById("result")
-    result.innerHTML="Turnstile site key konfigüre edilmedi."
+  const turnstileElement = document.querySelector(".cf-turnstile")
+  const siteKey = turnstileElement?.dataset?.sitekey
+
+  if (!siteKey) {
+    result.innerHTML = "Turnstile site key konfigüre edilmedi."
     return
   }
+
+  let input = steamInput.value.trim()
+  if (!input) return
 
   const result=document.getElementById("result")
   result.innerHTML=`
