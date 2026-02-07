@@ -12,10 +12,27 @@ steamInput.addEventListener("keydown", e=>{
 setInitialSteamIdFromPath()
 
 function setInitialSteamIdFromPath(){
-  const path = window.location.pathname.replace(/^\/+|\/+$/g, "")
+  const path = window.location.pathname.replace(/^\/+|\/+$/g,"")
   if(!path) return
   steamInput.value = decodeURIComponent(path)
   getProfile()
+}
+
+/* =========================
+   YARDIMCI FONKSİYONLAR
+========================= */
+
+function clamp(v,min,max){
+  return Math.max(min,Math.min(max,v))
+}
+
+function normalize(value, cap){
+  if(value === null || value === undefined) return null
+  return clamp(value / cap, 0, 1)
+}
+
+function getNeutral(value){
+  return value === null || value === undefined ? 0.5 : value
 }
 
 function calculateAge(ts){
@@ -23,229 +40,148 @@ function calculateAge(ts){
   return Math.floor((Date.now()-ts*1000)/(1000*60*60*24*365))
 }
 
-function clamp(value,min,max){
-  return Math.max(min,Math.min(max,value))
-}
-
-function normalize(value,cap){
-  if(value===null||value===undefined) return null
-  return clamp(value/cap,0,1)
-}
-
-function formatNumber(value){
-  if(value===null||value===undefined) return "Veri yok"
-  return Intl.NumberFormat("tr-TR").format(value)
+function formatNumber(v){
+  if(v===null||v===undefined) return "Veri yok"
+  return Intl.NumberFormat("tr-TR").format(v)
 }
 
 function formatCurrency(amount,currency="USD"){
   if(amount===null||amount===undefined) return "Veri yok"
-  return new Intl.NumberFormat("tr-TR",{
+  return Intl.NumberFormat("tr-TR",{
     style:"currency",
     currency,
     maximumFractionDigits:0
   }).format(amount)
 }
 
-function getNeutralFactor(value){
-  return value===null||value===undefined ? 0.5 : value
-}
+/* =========================
+   TRUST FAKTÖRLERİ
+========================= */
 
-function calculateTrustScore(payload){
-  const {
-    ageYears,
-    totalHours,
-    steamLevel,
-    gamesCount,
-    accountValue,
-    workshopStats,
-    marketStats,
-    tradeStats,
-    cs2BadgeCount,
-    bans,
-    friendBanStats,
-    faceitStats,
-    faceit
-  } = payload
-
-  const components = [
-    { weight:0.12, value:getNeutralFactor(normalize(ageYears,15)) },
-    { weight:0.12, value:getNeutralFactor(normalize(totalHours,2000)) },
-    { weight:0.1, value:getNeutralFactor(normalize(steamLevel,100)) },
-    { weight:0.08, value:getNeutralFactor(normalize(accountValue,500)) },
-    { weight:0.06, value:getNeutralFactor(normalize(gamesCount,500)) },
-    {
-      weight:0.06,
-      value:getNeutralFactor(normalize((workshopStats?.likes||0)+(workshopStats?.comments||0),700))
-    },
-    {
-      weight:0.06,
-      value:getNeutralFactor(normalize((marketStats?.transactions||0)+(tradeStats?.trades||0),200))
-    },
-    { weight:0.06, value:getNeutralFactor(normalize(cs2BadgeCount,10)) },
-    { weight:0.12, value:getNeutralFactor(buildFaceitFactor(faceit,faceitStats)) },
-    { weight:0.15, value:getNeutralFactor(buildBanFactor(bans)) },
-    { weight:0.07, value:getNeutralFactor(buildFriendBanFactor(friendBanStats)) }
-  ]
-
-  const score = components.reduce((acc,item)=>acc+(item.weight*item.value),0)
-  return Math.round(clamp(score*100,0,100))
-}
-
-function buildFaceitFactor(faceit,faceitStats){
-  if(!faceit || !faceitStats?.lifetime) return null
-  const winrate = parseInt(faceitStats.lifetime["Win Rate %"] || 0,10)
-  const elo = faceit?.games?.cs2?.faceit_elo || 0
-  const matches = parseInt(faceitStats.lifetime["Matches"] || 0,10)
-  const winFactor = normalize(winrate,70) ?? 0.5
-  const eloFactor = normalize(elo,2000) ?? 0.5
-  const matchFactor = normalize(matches,500) ?? 0.5
-  return clamp((winFactor+eloFactor+matchFactor)/3,0,1)
-}
-
-function buildFriendBanFactor(friendBanStats){
-  if(!friendBanStats) return null
-  const banned = friendBanStats.bannedFriends || 0
-  return 1 - clamp(banned/50,0,1)
+function buildAgeActivityFactor(age,last2w){
+  if(age===null||last2w===null) return null
+  if(age<1 && last2w>30) return 0.7
+  if(age>5 && last2w===0) return 0.3
+  return 0.5
 }
 
 function buildBanFactor(bans){
   if(!bans) return null
-  const vac = bans.NumberOfVACBans || 0
-  const game = bans.NumberOfGameBans || 0
-  return vac>0 || game>0 ? 0 : 1
+  const vac=bans.NumberOfVACBans||0
+  const game=bans.NumberOfGameBans||0
+  const days=bans.DaysSinceLastBan??null
+
+  if(vac>0||game>0){
+    if(days!==null && days<365) return 0
+    return 0.3
+  }
+  return 1
 }
 
-async function getProfile() {
+function buildFriendBanFactor(stats){
+  if(!stats) return null
+  return 1 - clamp(stats.bannedFriends/50,0,1)
+}
 
-  const result = document.getElementById("result")
+function buildFaceitFactor(faceit,stats){
+  if(!faceit||!stats?.lifetime) return null
+  const winrate=parseInt(stats.lifetime["Win Rate %"]||0,10)
+  const elo=faceit.games?.cs2?.faceit_elo||0
+  const matches=parseInt(stats.lifetime["Matches"]||0,10)
 
-  const turnstileElement = document.querySelector(".cf-turnstile")
-  const siteKey = turnstileElement?.dataset?.sitekey
+  return clamp(
+    (
+      getNeutral(normalize(winrate,70)) +
+      getNeutral(normalize(elo,2000)) +
+      getNeutral(normalize(matches,500))
+    )/3,
+    0,1
+  )
+}
 
-  if (!siteKey) {
-    result.innerHTML = "Turnstile site key konfigüre edilmedi."
-    return
-  }
+/* =========================
+   TRUST SCORE
+========================= */
 
-  let input = steamInput.value.trim()
-  if (!input) return
+function calculateTrustScore(p){
+  const components=[
+    {weight:0.15,value:normalize(p.ageYears,15)},
+    {weight:0.15,value:normalize(p.totalHours,2000)},
+    {weight:0.15,value:normalize(p.last2wHours,40)},
+    {weight:0.08,value:normalize(p.steamLevel,100)},
+    {weight:0.06,value:normalize(p.gamesCount,500)},
+    {weight:0.05,value:normalize(p.accountValue,500)},
+    {weight:0.05,value:normalize(p.cs2BadgeCount,10)},
+    {weight:0.07,value:buildAgeActivityFactor(p.ageYears,p.last2wHours)},
+    {weight:0.15,value:buildFaceitFactor(p.faceit,p.faceitStats)},
+    {weight:0.20,value:buildBanFactor(p.bans)},
+    {weight:0.04,value:buildFriendBanFactor(p.friendBanStats)},
+    p.workshopStats ? {
+      weight:0.03,
+      value:normalize(
+        (p.workshopStats.likes||0)+(p.workshopStats.comments||0),
+        700
+      )
+    }:null
+  ].filter(Boolean)
 
-  result.innerHTML=`
-    <div class="card loading-card">
-      <div class="loader"></div>
-      <div>Analiz hazırlanıyor...</div>
-    </div>
-  `
+  const totalWeight=components.reduce((a,c)=>a+c.weight,0)
 
-  const turnstileToken = document.querySelector("[name='cf-turnstile-response']")?.value
+  const score=components.reduce(
+    (acc,c)=>acc+(c.weight/totalWeight)*getNeutral(c.value),
+    0
+  )
 
+  return Math.round(clamp(score*100,0,100))
+}
+
+/* =========================
+   PROFİL ÇEKME (UI BOZULMADI)
+========================= */
+
+async function getProfile(){
+  const result=document.getElementById("result")
+  const input=steamInput.value.trim()
+  if(!input) return
+
+  result.innerHTML=`<div class="card loading-card">Analiz hazırlanıyor...</div>`
+
+  const turnstileToken=document.querySelector("[name='cf-turnstile-response']")?.value
   if(!turnstileToken){
-    result.innerHTML="Lütfen captcha doğrulamasını tamamla."
+    result.innerHTML="Captcha gerekli"
     return
   }
 
-  const res=await fetch(API_URL+"?steamid="+encodeURIComponent(input), {
-    headers: {
-      "X-Turnstile-Token": turnstileToken
-    }
+  const res=await fetch(API_URL+"?steamid="+encodeURIComponent(input),{
+    headers:{ "X-Turnstile-Token": turnstileToken }
   })
 
-  if(!res.ok){
-    const errorText = await res.text()
-    result.innerHTML=`Sunucu hatası: ${errorText}`
-    return
-  }
   const data=await res.json()
-
-  if(window.turnstile){
-    window.turnstile.reset()
-  }
-
-  if(data.error){
-    result.innerHTML="Kullanıcı bulunamadı."
-    return
-  }
+  if(window.turnstile) window.turnstile.reset()
 
   const p=data.profile
   const cs2=data.cs2
-  const bans=data.bans
-  const faceit=data.faceit
-  const faceitStats=data.faceitStats
-  const faceitHistory=data.faceitHistory
-  const gamesCount=data.gamesCount
-  const steamLevel=data.steamLevel
-  const accountValue=data.accountValue
-  const accountValueCurrency=data.accountValueCurrency
-  const cs2BadgeCount=data.cs2BadgeCount
-  const serviceYears=data.serviceYears
-  const topBadges=data.topBadges || []
-  const workshopStats=data.workshopStats
-  const marketStats=data.marketStats
-  const tradeStats=data.tradeStats
-  const friendBanStats=data.friendBanStats
 
   const age=calculateAge(p.timecreated)
-  const hours=cs2?Math.floor(cs2.playtime_forever/60):"Gizli"
-  const last2w=cs2?Math.floor((cs2.playtime_2weeks||0)/60):0
-
-  let winrate="?"
-  let elo=null
-  if(faceitStats?.lifetime?.["Win Rate %"])
-    winrate=parseInt(faceitStats.lifetime["Win Rate %"])
-
-  if(faceit?.games?.cs2?.faceit_elo)
-    elo=faceit.games.cs2.faceit_elo
-
-  let wlStrip="-----"
-  if(faceitHistory?.items){
-    wlStrip=faceitHistory.items
-      .slice(0,5)
-      .map(m=>m.results.winner===faceit.player_id?"W":"L")
-      .join(" ")
-  }
-
-  const vacBans=bans?.NumberOfVACBans ?? null
-  const gameBans=bans?.NumberOfGameBans ?? null
+  const hours=cs2?Math.floor(cs2.playtime_forever/60):null
+  const last2w=cs2?Math.floor((cs2.playtime_2weeks||0)/60):null
 
   const trust=calculateTrustScore({
-    ageYears: age==="Gizli"?null:age,
-    totalHours: hours==="Gizli"?null:hours,
-    steamLevel,
-    gamesCount,
-    accountValue,
-    workshopStats,
-    marketStats,
-    tradeStats,
-    cs2BadgeCount,
-    bans,
-    friendBanStats,
-    faceitStats,
-    faceit
+    ageYears:age==="Gizli"?null:age,
+    totalHours:hours,
+    last2wHours:last2w,
+    steamLevel:data.steamLevel,
+    gamesCount:data.gamesCount,
+    accountValue:data.accountValue,
+    cs2BadgeCount:data.cs2BadgeCount,
+    workshopStats:data.workshopStats,
+    bans:data.bans,
+    friendBanStats:data.friendBanStats,
+    faceit:data.faceit,
+    faceitStats:data.faceitStats
   })
 
   const trustLabel=trust>70?"Yüksek":trust>40?"Orta":"Düşük"
-  const trustClass=trust>70?"trust-high":trust>40?"trust-mid":"trust-low"
-
-  let faceitBadgeURL=null
-  if(faceit?.games?.cs2?.skill_level){
-    const lvl=faceit.games.cs2.skill_level
-    faceitBadgeURL=`https://faceitfinder.com/resources/ranks/skill_level_${lvl}_lg.png`
-  }
-
-  const accountValueText=formatCurrency(accountValue,accountValueCurrency)
-  const serviceYearsText=(serviceYears===null||serviceYears===undefined) ? "Veri yok" : `${serviceYears} yıl`
-  const levelText=steamLevel??"Veri yok"
-  const friendBanText=friendBanStats
-    ? `${friendBanStats.bannedFriends}/${friendBanStats.totalFriends}`
-    : "Veri yok"
-  const topBadgeMarkup=topBadges.length
-    ? topBadges.map(badge=>`
-      <div class="mini-badge">
-        <span>XP ${formatNumber(badge.xp)}</span>
-        <small>Badge #${badge.badgeid}</small>
-      </div>
-    `).join("")
-    : `<div class="mini-badge empty">Veri yok</div>`
 
   result.innerHTML=`
 
