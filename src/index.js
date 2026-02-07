@@ -211,19 +211,18 @@ export default {
     const data = await res.json()
     const badges = data?.response?.badges || []
 
-    const cs2BadgeCount = badges.filter(b => b.appid === 730).length
-
-    const topBadges = badges
-      .sort((a, b) => (b.xp || 0) - (a.xp || 0))
-      .slice(0, 3)
-      .map(b => ({
-        badgeid: b.badgeid,
-        xp: b.xp || 0
-      }))
+    const cs2Badge = badges.find(b => b.appid === 730)
 
     return {
-      cs2BadgeCount,
-      topBadges
+      cs2BadgeCount: cs2Badge ? (cs2Badge.level || 1) : 0,
+      topBadges: badges
+        .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+        .slice(0, 3)
+        .map(b => ({
+          badgeid: b.badgeid,
+          xp: b.xp || 0,
+          level: b.level || null
+        }))
     }
   } catch {
     return {
