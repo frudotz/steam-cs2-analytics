@@ -30,36 +30,6 @@ body{
   overflow:hidden;
 }
 
-.hero-github-card{
-  position:absolute;
-  right:18px;
-  top:18px;
-  padding:10px 14px;
-  border-radius:16px;
-  background:rgba(15,23,42,.6);
-  border:1px solid rgba(148,163,184,.25);
-  color:#e2e8f0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  text-decoration:none;
-  box-shadow:0 12px 24px rgba(15,23,42,.45);
-  transition:transform .2s ease, box-shadow .2s ease;
-}
-
-.hero-github-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 16px 30px rgba(15,23,42,.6);
-}
-
-.hero-github-card span{
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:.06em;
-  text-transform:uppercase;
-}
-
 .hero-glow{
   position:absolute;
   inset:auto -40% -60% -40%;
@@ -131,14 +101,6 @@ h1{
   flex-wrap:wrap;
 }
 
-.turnstile-wrapper{
-  display:none;
-}
-
-.turnstile-wrapper.is-visible{
-  display:block;
-}
-
 .security-note{
   display:flex;
   align-items:center;
@@ -176,19 +138,6 @@ h1{
 .profile-row{
   display:flex;
   gap:16px;
-}
-
-.name-link{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  color:#e2e8f0;
-  text-decoration:none;
-}
-
-.name-link i{
-  font-size:12px;
-  opacity:.7;
 }
 
 .avatar{
@@ -243,21 +192,6 @@ a:not(.name-link){
   padding:12px;
   text-align:center;
   border:1px solid rgba(148,163,184,.16);
-}
-
-.stat-positive{
-  background:rgba(34,197,94,.08);
-  border-color:rgba(34,197,94,.2);
-}
-
-.stat-negative{
-  background:rgba(239,68,68,.08);
-  border-color:rgba(239,68,68,.2);
-}
-
-.stat-neutral{
-  background:rgba(148,163,184,.08);
-  border-color:rgba(148,163,184,.2);
 }
 
 .stat span{
@@ -487,20 +421,9 @@ a:not(.name-link){
   .profile-badges{
     position:static;
     margin-top:12px;
-    justify-content:flex-start;
   }
 
   .faceit-substats{
     grid-template-columns:1fr;
-  }
-
-  .hero-github-card{
-    position:static;
-    margin-top:16px;
-    align-self:flex-start;
-  }
-
-  .cs2-meta{
-    flex-direction:column;
   }
 }
