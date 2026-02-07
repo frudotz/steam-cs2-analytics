@@ -425,25 +425,25 @@ const hexid = steamID64ToHexID(steamid64)
   <div class="grid-4">
     <div class="stat" onclick="navigator.clipboard.writeText('${steamid64}')" style="cursor: pointer;">
       <span>SteamID64</span>
-      <strong>${steamid64}</strong>
+      <strong>${steamid64}</strong><br>
       <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
 
     <div class="stat" onclick="navigator.clipboard.writeText('${hexid}')" style="cursor: pointer;">
       <span>HexID</span>
-      <strong>${hexid}</strong>
+      <strong>${hexid}</strong><br>
       <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
 
     <div class="stat" onclick="navigator.clipboard.writeText('${steamid}')" style="cursor: pointer;">
       <span>SteamID</span>
-      <strong>${steamid}</strong>
+      <strong>${steamid}</strong><br>
       <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
 
     <div class="stat" onclick="navigator.clipboard.writeText('${steamid3}')" style="cursor: pointer;">
       <span>SteamID3</span>
-      <strong>${steamid3}</strong>
+      <strong>${steamid3}</strong><br>
       <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
   </div>
