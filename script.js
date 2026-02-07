@@ -4,6 +4,12 @@ const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
 const turnstileWrapper = document.getElementById("turnstileWrapper")
 
+let currentTurnstileToken = null
+
+window.onTurnstileSuccess = function (token) {
+  currentTurnstileToken = token
+}
+
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
@@ -149,12 +155,12 @@ async function getProfile() {
     </div>
   `
 
-  const turnstileToken = document.querySelector("[name='cf-turnstile-response']")?.value
+  const turnstileToken = currentTurnstileToken
 
-  if(!turnstileToken){
-    result.innerHTML="Lütfen captcha doğrulamasını tamamla."
-    return
-  }
+if (!turnstileToken) {
+  result.innerHTML = "Lütfen captcha doğrulamasını tamamla."
+  return
+}
 
   const res=await fetch(API_URL+"?steamid="+encodeURIComponent(input), {
     headers: {
@@ -172,6 +178,7 @@ async function getProfile() {
   if(window.turnstile){
     window.turnstile.reset()
   }
+  currentTurnstileToken = null
 
   if(data.error){
     result.innerHTML="Kullanıcı bulunamadı."
