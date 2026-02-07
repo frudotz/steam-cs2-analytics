@@ -395,9 +395,9 @@ const hexid = steamID64ToHexID(steamid64)
 
 </div>
 
-<!-- COMMUNITY 
+<!-- COMMUNITY [NOT WORKING]
 <div class="card glow-card">
-  <div class="card-title">Topluluk Etkileşimi</div>
+  <div class="card-title">Topluluk Etkileşimi - BETA</div>
   <div class="grid-4">
     <div class="stat ${workshopStats?"stat-positive":"stat-neutral"}">
       ${formatNumber(workshopStats?.likes)}
@@ -422,33 +422,27 @@ const hexid = steamID64ToHexID(steamid64)
 <div class="card glow-card">
   <div class="card-title">Steam Kimlikleri</div>
 
-  <div class="grid-2">
-    <div class="id-box">
+  <div class="grid-4">
+    <div class="stat" onclick="navigator.clipboard.writeText('${steamid64}')">
       <span>SteamID64</span>
       <strong>${steamid64}</strong>
     </div>
 
-    <div class="id-box">
+    <div class="stat" onclick="navigator.clipboard.writeText('${hexid}')">
       <span>HexID</span>
       <strong>${hexid}</strong>
     </div>
 
-    <div class="id-box">
+    <div class="stat" onclick="navigator.clipboard.writeText('${steamid}')">
       <span>SteamID</span>
       <strong>${steamid}</strong>
     </div>
 
-    <div class="id-box">
+    <div class="stat" onclick="navigator.clipboard.writeText('${steamid3}')">
       <span>SteamID3</span>
       <strong>${steamid3}</strong>
     </div>
   </div>
-</div>
-
-<div class="id-box" onclick="navigator.clipboard.writeText('${steamid64}')">
-  <span>SteamID64</span>
-  <strong>${steamid64}</strong>
-  <small>Kopyalamak için tıkla</small>
 </div>
 `
 }
