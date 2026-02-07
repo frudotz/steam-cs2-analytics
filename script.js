@@ -2,6 +2,10 @@ const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
+const turnstileWrapper = document.getElementById("turnstileWrapper")
+const turnstileElement = document.querySelector(".cf-turnstile")
+const turnstileSiteKey = turnstileElement?.dataset?.sitekey
+const isTurnstileConfigured = Boolean(turnstileSiteKey && turnstileSiteKey !== "PASTE_TURNSTILE_SITE_KEY")
 
 const isTurnstileConfigured = !!document.querySelector(".cf-turnstile")
 
