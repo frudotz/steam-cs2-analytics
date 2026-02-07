@@ -23,6 +23,28 @@ function calculateAge(ts){
   return Math.floor((Date.now()-ts*1000)/(1000*60*60*24*365))
 }
 
+/* =========================
+   STEAM ID DÖNÜŞTÜRÜCÜLER
+========================= */
+
+function steamID64ToSteamID(steamid64){
+  const base = BigInt("76561197960265728")
+  const id = BigInt(steamid64) - base
+  const y = id % 2n
+  const z = (id - y) / 2n
+  return `STEAM_1:${y}:${z}`
+}
+
+function steamID64ToSteamID3(steamid64){
+  const base = BigInt("76561197960265728")
+  const id = BigInt(steamid64) - base
+  return `[U:1:${id}]`
+}
+
+function steamID64ToHexID(steamid64){
+  return BigInt(steamid64).toString(16).toUpperCase()
+}
+
 function clamp(value,min,max){
   return Math.max(min,Math.min(max,value))
 }
@@ -232,6 +254,12 @@ async function getProfile() {
     faceitBadgeURL=`https://faceitfinder.com/resources/ranks/skill_level_${lvl}_lg.png`
   }
 
+  const steamid64 = p.steamid
+const steamid = steamID64ToSteamID(steamid64)
+const steamid3 = steamID64ToSteamID3(steamid64)
+const hexid = steamID64ToHexID(steamid64)
+
+  
   const accountValueText=formatCurrency(accountValue,accountValueCurrency)
   const serviceYearsText=(serviceYears===null||serviceYears===undefined) ? "Veri yok" : `${serviceYears} yıl`
   const levelText=steamLevel??"Veri yok"
@@ -255,7 +283,7 @@ async function getProfile() {
   <div class="profile-row">
     <img class="avatar" src="${p.avatarfull}">
     <div>
-      <a class="name-link" href="${p.profileurl}" target="_blank" rel="noreferrer">
+      <a class="name-link" href="${p.profileurl}" target="_blank" style="text-decoration: none;color: white" rel="noreferrer">
         <span class="name">${p.personaname}</span>
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
       </a>
@@ -367,7 +395,7 @@ async function getProfile() {
 
 </div>
 
-<!-- COMMUNITY -->
+<!-- COMMUNITY 
 <div class="card glow-card">
   <div class="card-title">Topluluk Etkileşimi</div>
   <div class="grid-4">
@@ -388,6 +416,39 @@ async function getProfile() {
       <span>Takas</span>
     </div>
   </div>
+</div> -->
+
+<!-- STEAM IDS -->
+<div class="card glow-card">
+  <div class="card-title">Steam Kimlikleri</div>
+
+  <div class="grid-2">
+    <div class="id-box">
+      <span>SteamID64</span>
+      <strong>${steamid64}</strong>
+    </div>
+
+    <div class="id-box">
+      <span>HexID</span>
+      <strong>${hexid}</strong>
+    </div>
+
+    <div class="id-box">
+      <span>SteamID</span>
+      <strong>${steamid}</strong>
+    </div>
+
+    <div class="id-box">
+      <span>SteamID3</span>
+      <strong>${steamid3}</strong>
+    </div>
+  </div>
+</div>
+
+<div class="id-box" onclick="navigator.clipboard.writeText('${steamid64}')">
+  <span>SteamID64</span>
+  <strong>${steamid64}</strong>
+  <small>Kopyalamak için tıkla</small>
 </div>
 `
 }
