@@ -389,27 +389,6 @@ async function getProfile() {
   </div>
 
 </div>
-
-<div class="card glow-card">
-  <div class="card-title">Profil Doluluğu</div>
-
-  <div class="trust-wrapper">
-    <div class="trust-header">
-      <span class="trust-score">${profileCompleteness}/100</span>
-      <span class="trust-label ${pcClass}">${pcLabel}</span>
-    </div>
-
-    <div class="trust-bar-bg">
-      <div class="trust-bar-fill"
-        style="width:${profileCompleteness}%;">
-      </div>
-    </div>
-
-    <small style="opacity:.6">
-      Steam’in herkese açık sunduğu profil sinyallerine göre hesaplanır.
-    </small>
-  </div>
-</div>
 `
 }
 
