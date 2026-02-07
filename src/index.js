@@ -192,11 +192,110 @@ export default {
       
 
       async function fetchSteamLevel(steamid, STEAM_KEY) {
-  const res = await fetch(
-    `https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${STEAM_KEY}&steamid=${steamid}`
-  )
-  const data = await res.json()
-  return data?.response?.player_level ?? null
+  try {
+    const res = await fetch(
+      `https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${STEAM_KEY}&steamid=${steamid}`
+    )
+    const data = await res.json()
+    return data?.response?.player_level ?? null
+  } catch {
+    return null
+  }
+}
+
+      async function fetchBadges(steamid, STEAM_KEY) {
+  try {
+    const res = await fetch(
+      `https://api.steampowered.com/IPlayerService/GetBadges/v1/?key=${STEAM_KEY}&steamid=${steamid}`
+    )
+    const data = await res.json()
+    const badges = data?.response?.badges || []
+
+    const cs2BadgeCount = badges.filter(b => b.appid === 730).length
+
+    const topBadges = badges
+      .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+      .slice(0, 3)
+      .map(b => ({
+        badgeid: b.badgeid,
+        xp: b.xp || 0
+      }))
+
+    return {
+      cs2BadgeCount,
+      topBadges
+    }
+  } catch {
+    return {
+      cs2BadgeCount: null,
+      topBadges: []
+    }
+  }
+}
+
+      async function fetchWorkshopStats(steamid) {
+  try {
+    const res = await fetch(
+      `https://steamcommunity.com/profiles/${steamid}/myworkshopfiles/?xml=1`
+    )
+    const text = await res.text()
+
+    const likes =
+      Number(text.match(/<favorited>(\d+)<\/favorited>/)?.[1]) || 0
+    const comments =
+      Number(text.match(/<comments>(\d+)<\/comments>/)?.[1]) || 0
+
+    return { likes, comments }
+  } catch {
+    return null
+  }
+}
+
+      async function fetchFriendBanStats(steamid, STEAM_KEY) {
+  try {
+    const friendsRes = await fetch(
+      `https://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=${STEAM_KEY}&steamid=${steamid}`
+    )
+    const friendsData = await friendsRes.json()
+    const friends = friendsData?.friendslist?.friends || []
+
+    const sample = friends.slice(0, 50) // 🔥 limit
+    if (sample.length === 0) return null
+
+    const ids = sample.map(f => f.steamid).join(",")
+
+    const bansRes = await fetch(
+      `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_KEY}&steamids=${ids}`
+    )
+    const bansData = await bansRes.json()
+
+    const bannedFriends = bansData.players.filter(
+      p => p.NumberOfVACBans > 0 || p.NumberOfGameBans > 0
+    ).length
+
+    return {
+      bannedFriends,
+      totalFriends: sample.length
+    }
+  } catch {
+    return null
+  }
+}
+
+      async function fetchAccountValue(gamesList = []) {
+  try {
+    let value = 0
+
+    for (const g of gamesList) {
+      if (g.playtime_forever > 0) value += 2
+      if (g.playtime_forever > 600) value += 5
+      if (g.playtime_forever > 2000) value += 10
+    }
+
+    return Math.round(value)
+  } catch {
+    return null
+  }
 }
 
       
