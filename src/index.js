@@ -199,6 +199,35 @@ export default {
   return data?.response?.player_level ?? null
 }
 
+      async function fetchBadges(steamid, STEAM_KEY) {
+  try {
+    const res = await fetch(
+      `https://api.steampowered.com/IPlayerService/GetBadges/v1/?key=${STEAM_KEY}&steamid=${steamid}`
+    )
+    const data = await res.json()
+    const badges = data?.response?.badges || []
+
+    const cs2BadgeCount = badges.filter(b => b.appid === 730).length
+
+    const topBadges = badges
+      .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+      .slice(0, 3)
+      .map(b => ({
+        badgeid: b.badgeid,
+        xp: b.xp || 0
+      }))
+
+    return {
+      cs2BadgeCount,
+      topBadges
+    }
+  } catch {
+    return {
+      cs2BadgeCount: null,
+      topBadges: []
+    }
+  }
+}
       
       
       // ========== BANS ==========
