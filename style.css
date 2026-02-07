@@ -411,177 +411,100 @@ a:not(.name-link){
   .grid-4{
     grid-template-columns:repeat(2,1fr);
   }
+
+  .profile-row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .avatar{
+    width:76px;
+    height:76px;
+  }
 }
 
 @media (max-width:600px){
+  .container{
+    padding:24px 18px 60px;
+  }
+
+  h1{
+    font-size:24px;
+  }
+
+  .hero{
+    padding:20px 18px 26px;
+  }
+
   .search-box{
     flex-direction:column;
+  }
+
+  .search-box button{
+    width:100%;
+  }
+
+  .security-row{
+    align-items:flex-start;
+  }
+
+  .turnstile-wrapper{
+    width:100%;
+  }
+
+  .turnstile-wrapper .cf-turnstile{
+    width:100%;
+  }
+
+  .card{
+    padding:16px;
   }
 
   .profile-badges{
     position:static;
     margin-top:12px;
+    justify-content:flex-start;
+  }
+
+  .badge-pill{
+    min-width:60px;
+  }
+
+  .badge-row{
+    gap:8px;
   }
 
   .faceit-substats{
     grid-template-columns:1fr;
   }
+
+  .hero-github-card{
+    position:static;
+    margin-top:16px;
+    align-self:flex-start;
+  }
+
+  .cs2-meta{
+    flex-direction:column;
+  }
 }
 
-/* =========================
-   MOBILE OPTIMIZATION
-   ========================= */
-
-@media (max-width: 480px) {
-
-  body {
-    font-size: 14px;
+@media (max-width:420px){
+  .grid-4{
+    grid-template-columns:1fr;
   }
 
-  .container {
-    padding: 20px 14px 60px;
+  .hero-tag{
+    font-size:11px;
   }
 
-  /* HERO */
-  .hero {
-    padding: 20px 16px 26px;
-    border-radius: 16px;
+  .trust-header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
   }
 
-  h1 {
-    font-size: 22px;
-    line-height: 1.3;
-  }
-
-  .hero-sub {
-    font-size: 13px;
-  }
-
-  /* SEARCH */
-  .search-box input,
-  .search-box button {
-    width: 100%;
-    padding: 14px;
-    font-size: 15px;
-  }
-
-  .search-box button {
-    font-weight: 700;
-  }
-
-  /* SECURITY ROW */
-  .security-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  /* CARDS */
-  .card {
-    padding: 14px;
-    border-radius: 14px;
-  }
-
-  .card-title {
-    font-size: 15px;
-  }
-
-  /* PROFILE */
-  .profile-row {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .avatar {
-    width: 72px;
-    height: 72px;
-  }
-
-  .name {
-    font-size: 16px;
-  }
-
-  .sub {
-    font-size: 12px;
-  }
-
-  /* BADGES */
-  .profile-badges {
-    position: static;
-    margin-top: 12px;
-    justify-content: center;
-  }
-
-  .badge-pill {
-    min-width: auto;
-    padding: 6px 8px;
-    font-size: 11px;
-  }
-
-  .badge-pill span {
-    font-size: 9px;
-  }
-
-  .faceit-rank-badge {
-    width: 52px;
-  }
-
-  .steam-games-badge {
-    width: 52px;
-  }
-
-  /* GRID STATS */
-  .grid-4 {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .stat {
-    padding: 10px 6px;
-    font-size: 14px;
-  }
-
-  .stat span {
-    font-size: 11px;
-  }
-
-  /* FACEIT */
-  .faceit-name {
-    font-size: 16px;
-    text-align: center;
-  }
-
-  .faceit-substats {
-    grid-template-columns: 1fr;
-  }
-
-  .mini-stat {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  /* TRUST */
-  .trust-score {
-    font-size: 18px;
-  }
-
-  .trust-label {
-    font-size: 10px;
-    padding: 4px 8px;
-  }
-
-  .trust-bar-bg {
-    height: 14px;
-  }
-
-  /* COMMUNITY */
-  .mini-badge {
-    font-size: 11px;
-    padding: 8px;
-  }
-
-  .mini-badge small {
-    font-size: 9px;
+  .profile-badges{
+    gap:8px;
   }
 }
