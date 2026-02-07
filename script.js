@@ -1,4 +1,4 @@
-const API_URL = "https://api.frudotz.com/"
+const API_URL = "https://cs2.frudotz.com/api/"
 
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
