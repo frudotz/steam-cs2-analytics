@@ -440,8 +440,19 @@ a:not(.name-link){
 }
 
 @media (max-width:600px){
-  .container{
-    padding:24px 18px 60px;
+  .container {
+    max-width: 640px;
+    margin: auto;
+    padding: 330px 28px 70px;
+    transform: scale(1.53);
+}
+
+  .steam{
+    font-size: xx-small;
+  }
+
+  .steam small{
+    font-size: 9px;
   }
 
   h1{
