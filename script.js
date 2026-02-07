@@ -91,6 +91,18 @@ function calculateTrustScore(payload){
   return Math.round(clamp(score*100,0,100))
 }
 
+const profileCompleteness = data.profileCompleteness
+
+const pcLabel =
+  profileCompleteness > 70 ? "Dolu" :
+  profileCompleteness > 40 ? "Orta" :
+  "Zayıf"
+
+const pcClass =
+  profileCompleteness > 70 ? "trust-high" :
+  profileCompleteness > 40 ? "trust-mid" :
+  "trust-low"
+
 function buildFaceitFactor(faceit,faceitStats){
   if(!faceit || !faceitStats?.lifetime) return null
   const winrate = parseInt(faceitStats.lifetime["Win Rate %"] || 0,10)
@@ -388,6 +400,27 @@ async function getProfile() {
     </div>
   </div>
 
+</div>
+
+<div class="card glow-card">
+  <div class="card-title">Profil Doluluğu</div>
+
+  <div class="trust-wrapper">
+    <div class="trust-header">
+      <span class="trust-score">${profileCompleteness}/100</span>
+      <span class="trust-label ${pcClass}">${pcLabel}</span>
+    </div>
+
+    <div class="trust-bar-bg">
+      <div class="trust-bar-fill"
+        style="width:${profileCompleteness}%;">
+      </div>
+    </div>
+
+    <small style="opacity:.6">
+      Steam’in herkese açık sunduğu profil sinyallerine göre hesaplanır.
+    </small>
+  </div>
 </div>
 `
 }
