@@ -1,3 +1,9 @@
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+}
+
 // ================== GLOBAL HELPERS ==================
 const RATE_LIMIT_WINDOW_MS = 60 * 1000
 const RATE_LIMIT_MAX = 20
@@ -135,6 +141,9 @@ function calculateProfileCompleteness({
   return Math.min(s, 100)
 }
 
+if (request.method === "OPTIONS") {
+  return new Response(null, { headers: CORS_HEADERS })
+}
 // ================== WORKER ==================
 export default {
   async fetch(request, env) {
