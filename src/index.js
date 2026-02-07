@@ -1,6 +1,7 @@
 const RATE_LIMIT_WINDOW_MS = 60 * 1000
 const RATE_LIMIT_MAX = 20
 const rateLimitStore = new Map()
+const STORE_CURRENCY = "USD"
 
 function checkRateLimit(ip) {
   const now = Date.now()
@@ -188,6 +189,18 @@ export default {
 
       totalHours = Math.floor(totalHours / 60)
 
+      
+
+      async function fetchSteamLevel(steamid, STEAM_KEY) {
+  const res = await fetch(
+    `https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${STEAM_KEY}&steamid=${steamid}`
+  )
+  const data = await res.json()
+  return data?.response?.player_level ?? null
+}
+
+      
+      
       // ========== BANS ==========
       const banRes = await fetch(
         `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_KEY}&steamids=${steamid}`
