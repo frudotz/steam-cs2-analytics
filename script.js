@@ -349,6 +349,24 @@ async function getProfile() {
 
 </div>
 
+<!-- TRUST -->
+<div class="card glow-card">
+  <div class="card-title">Güven Skoru</div>
+
+  <div class="trust-wrapper">
+    <div class="trust-header">
+      <span class="trust-score">${trust}/100</span>
+      <span class="trust-label ${trustClass}">${trustLabel}</span>
+    </div>
+    <div class="trust-bar-bg">
+      <div class="trust-bar-fill"
+        style="width:${trust}%;">
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <!-- COMMUNITY -->
 <div class="card glow-card">
   <div class="card-title">Topluluk Etkileşimi</div>
@@ -370,24 +388,6 @@ async function getProfile() {
       <span>Takas</span>
     </div>
   </div>
-</div>
-
-<!-- TRUST -->
-<div class="card glow-card">
-  <div class="card-title">Güven Skoru</div>
-
-  <div class="trust-wrapper">
-    <div class="trust-header">
-      <span class="trust-score">${trust}/100</span>
-      <span class="trust-label ${trustClass}">${trustLabel}</span>
-    </div>
-    <div class="trust-bar-bg">
-      <div class="trust-bar-fill"
-        style="width:${trust}%;">
-      </div>
-    </div>
-  </div>
-
 </div>
 `
 }
