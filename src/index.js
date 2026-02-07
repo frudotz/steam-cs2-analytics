@@ -228,6 +228,71 @@ export default {
     }
   }
 }
+
+      async function fetchWorkshopStats(steamid) {
+  try {
+    const res = await fetch(
+      `https://steamcommunity.com/profiles/${steamid}/myworkshopfiles/?xml=1`
+    )
+    const text = await res.text()
+
+    const likes =
+      Number(text.match(/<favorited>(\d+)<\/favorited>/)?.[1]) || 0
+    const comments =
+      Number(text.match(/<comments>(\d+)<\/comments>/)?.[1]) || 0
+
+    return { likes, comments }
+  } catch {
+    return null
+  }
+}
+
+      async function fetchFriendBanStats(steamid, STEAM_KEY) {
+  try {
+    const friendsRes = await fetch(
+      `https://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=${STEAM_KEY}&steamid=${steamid}`
+    )
+    const friendsData = await friendsRes.json()
+    const friends = friendsData?.friendslist?.friends || []
+
+    const sample = friends.slice(0, 50) // 🔥 limit
+    if (sample.length === 0) return null
+
+    const ids = sample.map(f => f.steamid).join(",")
+
+    const bansRes = await fetch(
+      `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_KEY}&steamids=${ids}`
+    )
+    const bansData = await bansRes.json()
+
+    const bannedFriends = bansData.players.filter(
+      p => p.NumberOfVACBans > 0 || p.NumberOfGameBans > 0
+    ).length
+
+    return {
+      bannedFriends,
+      totalFriends: sample.length
+    }
+  } catch {
+    return null
+  }
+}
+
+      async function fetchAccountValue(gamesList = []) {
+  try {
+    let value = 0
+
+    for (const g of gamesList) {
+      if (g.playtime_forever > 0) value += 2
+      if (g.playtime_forever > 600) value += 5
+      if (g.playtime_forever > 2000) value += 10
+    }
+
+    return Math.round(value)
+  } catch {
+    return null
+  }
+}
       
       
       // ========== BANS ==========
