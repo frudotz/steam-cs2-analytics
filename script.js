@@ -218,7 +218,7 @@ async function getProfile(){
     faceitStats,
     faceit
   })
-  const trust=calculateTrustScore(age,hours,winrate,bans.NumberOfVACBans,elo,accountPower)
+
   const trustLabel=trust>70?"Yüksek":trust>40?"Orta":"Düşük"
   const trustClass=trust>70?"trust-high":trust>40?"trust-mid":"trust-low"
 
