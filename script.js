@@ -130,7 +130,6 @@ async function getProfile() {
   let input = steamInput.value.trim()
   if (!input) return
 
-  const result=document.getElementById("result")
   result.innerHTML=`
     <div class="card loading-card">
       <div class="loader"></div>
