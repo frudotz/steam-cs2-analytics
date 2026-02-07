@@ -201,7 +201,7 @@ async function getProfile(){
       </div>
 
       <div class="sub">Hesap Yaşı: ${age} yıl</div>
-      <div class="sub">Hesap Değeri: ${accountValueText}</div>
+      <div class="sub">Hesap Değeri: ${accountValue}</div>
     </div>
   </div>
 
