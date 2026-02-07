@@ -1,66 +1,292 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
- <!-- Primary Meta Tags -->
-<title>CS2 Profil Analizi - @frudotz</title>
-<meta name="title" content="CS2 Profil Analizi - @frudotz">
-<meta name="author" content="@frudotz">
-<meta name="theme-color" content="#000000">
-<meta name="background-color" content="#FFFFFF">
-<meta name="keywords" content="">
-<meta name="description" content="">
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://cs2.frudotz.com/">
-<meta property="og:title" content="CS2 Profil Analizi - @frudotz">
-<meta property="og:description" content="">
-<meta property="og:image" content="">
-<meta property="og:image:type" content="image/jpg">
-<!-- Twitter -->
-<meta property="twitter:card" content="summary">
-<meta property="twitter:url" content="https://cs2.frudotz.com/">
-<meta property="twitter:title" content="CS2 Profil Analizi - @frudotz">
-<meta property="twitter:description" content="">
-<meta property="twitter:image:src" content="">
-<!-- Includes & Preloads for Cache -->
-<link rel="icon" href="https://raw.githubusercontent.com/frudotz/frudotz.github.io/main/favicon.ico"> <!-- Icon -->
-<link rel="stylesheet" type="text/css" href="style.css">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="script.js" defer></script>
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css">
-</head>
+const RATE_LIMIT_WINDOW_MS = 60 * 1000
+const RATE_LIMIT_MAX = 20
+const rateLimitStore = new Map()
+const STORE_CURRENCY = "USD"
 
-<body>
+function checkRateLimit(ip) {
+  const now = Date.now()
+  const entry = rateLimitStore.get(ip)
 
-<div class="container">
-  <header class="hero">
-    <div class="hero-glow"></div>
-    <p class="hero-tag">CS2 Güven & Profil Analizi</p>
-    <h1>CS2 Profil Analizi</h1>
-    <p class="hero-sub">Steam & Faceit verilerini güven skoru ile birleştir, riskleri tek bakışta gör.</p>
-  </header>
+  if (!entry || now > entry.resetAt) {
+    const resetAt = now + RATE_LIMIT_WINDOW_MS
+    rateLimitStore.set(ip, { count: 1, resetAt })
+    return { allowed: true, retryAfter: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000) }
+  }
 
-<h2>SteamID Gir</h2>
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return { allowed: false, retryAfter: Math.ceil((entry.resetAt - now) / 1000) }
+  }
 
-<div class="search-box">
-  <input id="steamid"
-       placeholder="SteamID / Nick / URL"
-       autocomplete="off" />
-  <button id="searchBtn">Getir</button>
-</div>
+  entry.count += 1
+  return { allowed: true, retryAfter: Math.ceil((entry.resetAt - now) / 1000) }
+}
 
-<div class="security-row">
-  <div class="security-note">
-    <i class="fa-solid fa-shield-halved"></i>
-    Hız limiti ve captcha doğrulaması aktif.
-  </div>
-  <div class="cf-turnstile" data-sitekey="PASTE_TURNSTILE_SITE_KEY"></div>
-</div>
+export default {
+  async fetch(request, env) {
 
-<div id="result"></div>
+    const STEAM_KEY = env.STEAM_KEY
+    const FACEIT_KEY = env.FACEIT_KEY
+    const TURNSTILE_SECRET = env.TURNSTILE_SECRET
 
-</div>
+    const allowedOrigins = new Set([
+      "https://cs2.frudotz.com",
+      "https://frudotz.github.io"
+    ])
 
-</body>
-</html>
+    const origin = request.headers.get("Origin") || ""
+    const isAllowedOrigin = allowedOrigins.has(origin)
+
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+      "Vary": "Origin"
+    }
+
+    if (request.method === "OPTIONS") {
+      if (!isAllowedOrigin) {
+        return new Response("Origin not allowed", { status: 403 })
+      }
+      return new Response(null, { headers: corsHeaders })
+    }
+
+    if (!isAllowedOrigin) {
+      return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+        headers: corsHeaders,
+        status: 403
+      })
+    }
+
+    try {
+      const ip = request.headers.get("cf-connecting-ip")
+        || request.headers.get("x-forwarded-for")
+        || "unknown"
+
+      const rateLimitCheck = checkRateLimit(ip)
+      if (!rateLimitCheck.allowed) {
+        return new Response(JSON.stringify({
+          error: "Rate limit exceeded",
+          retryAfter: rateLimitCheck.retryAfter
+        }), {
+          headers: {
+            ...corsHeaders,
+            "Retry-After": `${rateLimitCheck.retryAfter}`
+          },
+          status: 429
+        })
+      }
+
+      const url = new URL(request.url)
+      let steamInput = url.searchParams.get("steamid")
+
+      if (!steamInput) {
+        return new Response(JSON.stringify({ error: "SteamID gerekli" }), {
+          headers: corsHeaders,
+          status: 400
+        })
+      }
+
+      console.log("REQUEST", { ip, steamInput })
+
+      const turnstileToken = request.headers.get("x-turnstile-token")
+      if (!turnstileToken) {
+        return new Response(JSON.stringify({ error: "Captcha gerekli" }), {
+          headers: corsHeaders,
+          status: 403
+        })
+      }
+
+      if (!TURNSTILE_SECRET) {
+        return new Response(JSON.stringify({ error: "Captcha konfigüre edilmedi" }), {
+          headers: corsHeaders,
+          status: 500
+        })
+      }
+
+      const turnstileRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: TURNSTILE_SECRET,
+          response: turnstileToken,
+          remoteip: ip
+        })
+      })
+
+      const turnstileData = await turnstileRes.json()
+      if (!turnstileData.success) {
+        return new Response(JSON.stringify({ error: "Captcha doğrulaması başarısız" }), {
+          headers: corsHeaders,
+          status: 403
+        })
+      }
+
+      // Steam profile linki geldiyse ayıkla
+      if (steamInput.includes("steamcommunity.com")) {
+        try {
+          const u = new URL(steamInput)
+
+          if (u.pathname.includes("/id/")) {
+            steamInput = u.pathname.split("/id/")[1].split("/")[0]
+          }
+
+          if (u.pathname.includes("/profiles/")) {
+            steamInput = u.pathname.split("/profiles/")[1].split("/")[0]
+          }
+        } catch {}
+      }
+
+      // Vanity URL -> SteamID64
+      if (!/^\d{17}$/.test(steamInput)) {
+        const vanityRes = await fetch(
+          `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${STEAM_KEY}&vanityurl=${steamInput}`
+        )
+        const vanityData = await vanityRes.json()
+
+        if (vanityData.response.success !== 1) {
+          return new Response(JSON.stringify({ error: "Steam kullanıcı bulunamadı" }), {
+            headers: corsHeaders,
+            status: 404
+          })
+        }
+
+        steamInput = vanityData.response.steamid
+      }
+
+      const steamid = steamInput
+
+      // ========== STEAM PROFIL ==========
+      const profileRes = await fetch(
+        `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_KEY}&steamids=${steamid}`
+      )
+      const profileData = await profileRes.json()
+      const profile = profileData.response.players[0]
+      if (!profile) {
+        return new Response(JSON.stringify({ error: "Steam profili bulunamadı" }), {
+          headers: corsHeaders,
+          status: 404
+        })
+      }
+
+      // ========== OWNED GAMES ==========
+      const gamesRes = await fetch(
+        `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
+      )
+
+      const gamesData = await gamesRes.json()
+      const gamesCount = gamesData.response?.game_count || 0
+      const gamesList = gamesData.response?.games || []
+
+      let totalHours = 0
+      let cs2 = null
+
+      if (gamesList.length > 0) {
+        for (const g of gamesList) {
+          totalHours += g.playtime_forever
+          if (g.appid === 730) cs2 = g
+        }
+      }
+
+      totalHours = Math.floor(totalHours / 60)
+
+      
+
+      async function fetchSteamLevel(steamid, STEAM_KEY) {
+  const res = await fetch(
+    `https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${STEAM_KEY}&steamid=${steamid}`
+  )
+  const data = await res.json()
+  return data?.response?.player_level ?? null
+}
+
+      
+      
+      // ========== BANS ==========
+      const banRes = await fetch(
+        `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_KEY}&steamids=${steamid}`
+      )
+      const banData = await banRes.json()
+      const bans = banData.players[0]
+
+      // ========== STEAM META ==========
+      const steamLevel = await fetchSteamLevel(steamid, STEAM_KEY)
+      const badgeData = await fetchBadges(steamid, STEAM_KEY)
+      const workshopStats = await fetchWorkshopStats(steamid, STEAM_KEY)
+      const friendBanStats = await fetchFriendBanStats(steamid, STEAM_KEY)
+      const accountValue = await fetchAccountValue(gamesList)
+
+      // ========== FACEIT ==========
+      let faceit = null
+      let faceitStats = null
+      let faceitHistory = null
+
+      try {
+        const faceitUserRes = await fetch(
+          `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${steamid}`,
+          { headers: { Authorization: `Bearer ${FACEIT_KEY}` } }
+        )
+
+        if (faceitUserRes.ok) {
+          faceit = await faceitUserRes.json()
+
+          const statsRes = await fetch(
+            `https://open.faceit.com/data/v4/players/${faceit.player_id}/stats/cs2`,
+            { headers: { Authorization: `Bearer ${FACEIT_KEY}` } }
+          )
+          faceitStats = await statsRes.json()
+
+          const histRes = await fetch(
+            `https://open.faceit.com/data/v4/players/${faceit.player_id}/history?game=cs2&limit=5`,
+            { headers: { Authorization: `Bearer ${FACEIT_KEY}` } }
+          )
+          faceitHistory = await histRes.json()
+        }
+      } catch {}
+
+      // ========== ACCOUNT POWER ==========
+      const accountAge = profile.timecreated
+        ? Math.floor((Date.now() - profile.timecreated * 1000) / (1000 * 60 * 60 * 24 * 365))
+        : 0
+
+      const accountPower =
+        (gamesCount * 2) +
+        (totalHours / 10) +
+        (accountAge * 5)
+
+      return new Response(JSON.stringify({
+        profile,
+        cs2,
+        bans,
+        faceit,
+        faceitStats,
+        faceitHistory,
+        gamesCount,
+        accountPower,
+        steamLevel,
+        accountValue,
+        accountValueCurrency: STORE_CURRENCY,
+        cs2BadgeCount: badgeData?.cs2BadgeCount ?? null,
+        topBadges: badgeData?.topBadges ?? [],
+        serviceYears: Number.isFinite(accountAge) ? accountAge : null,
+        workshopStats,
+        marketStats: null,
+        tradeStats: null,
+        friendBanStats
+      }), {
+        headers: corsHeaders
+      })
+
+    } catch (err) {
+
+      console.error("WORKER ERROR:", err)
+
+      return new Response(JSON.stringify({
+        error: true,
+        message: err.message || "Worker crash"
+      }), {
+        headers: corsHeaders,
+        status: 500
+      })
+    }
+  }
+}
