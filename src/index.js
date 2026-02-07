@@ -168,6 +168,62 @@ export default {
         })
       }
 
+      function calculateProfileCompleteness({
+  steamLevel,
+  accountAge,
+  gamesCount,
+  totalHours,
+  cs2BadgeCount,
+  topBadges,
+  friendBanStats,
+  workshopStats,
+  profile
+}) {
+  let score = 0
+
+  // Steam Level (20)
+  if (steamLevel >= 50) score += 20
+  else if (steamLevel >= 20) score += 14
+  else if (steamLevel >= 10) score += 8
+
+  // Hesap Yaşı (20)
+  if (accountAge >= 10) score += 20
+  else if (accountAge >= 5) score += 14
+  else if (accountAge >= 2) score += 8
+
+  // Oyun Sayısı (15)
+  if (gamesCount >= 100) score += 15
+  else if (gamesCount >= 30) score += 10
+  else if (gamesCount >= 10) score += 5
+
+  // Saat Dağılımı (15)
+  if (totalHours >= 2000) score += 15
+  else if (totalHours >= 500) score += 10
+  else if (totalHours >= 100) score += 5
+
+  // Rozet / Badge (10)
+  if ((cs2BadgeCount || 0) > 0 || (topBadges?.length || 0) > 0) {
+    score += 10
+  }
+
+  // Arkadaş sinyali (10)
+  if (friendBanStats?.totalFriends >= 30) score += 10
+  else if (friendBanStats?.totalFriends >= 10) score += 5
+
+  // Topluluk bayrakları (10)
+  if (
+    workshopStats &&
+    (workshopStats.likes > 0 || workshopStats.comments > 0)
+  ) {
+    score += 10
+  } else if (profile.communityvisibilitystate === 3) {
+    score += 5 // profil public
+  }
+
+  return Math.min(score, 100)
+}
+
+      
       // ========== OWNED GAMES ==========
       const gamesRes = await fetch(
         `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${steamid}&include_appinfo=true`
@@ -365,7 +421,8 @@ export default {
         workshopStats,
         marketStats: null,
         tradeStats: null,
-        friendBanStats
+        friendBanStats,
+        profileCompleteness
       }), {
         headers: corsHeaders
       })
