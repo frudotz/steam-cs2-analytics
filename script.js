@@ -91,18 +91,6 @@ function calculateTrustScore(payload){
   return Math.round(clamp(score*100,0,100))
 }
 
-const profileCompleteness = data.profileCompleteness
-
-const pcLabel =
-  profileCompleteness > 70 ? "Dolu" :
-  profileCompleteness > 40 ? "Orta" :
-  "Zayıf"
-
-const pcClass =
-  profileCompleteness > 70 ? "trust-high" :
-  profileCompleteness > 40 ? "trust-mid" :
-  "trust-low"
-
 function buildFaceitFactor(faceit,faceitStats){
   if(!faceit || !faceitStats?.lifetime) return null
   const winrate = parseInt(faceitStats.lifetime["Win Rate %"] || 0,10)
