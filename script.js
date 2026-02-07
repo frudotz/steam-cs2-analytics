@@ -7,16 +7,12 @@ const turnstileElement = document.querySelector(".cf-turnstile")
 const turnstileSiteKey = turnstileElement?.dataset?.sitekey
 const isTurnstileConfigured = Boolean(turnstileSiteKey && turnstileSiteKey !== "PASTE_TURNSTILE_SITE_KEY")
 
+const isTurnstileConfigured = !!document.querySelector(".cf-turnstile")
+
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
 })
-
-if(isTurnstileConfigured){
-  loadTurnstileScript()
-} else {
-  turnstileWrapper?.classList.remove("is-visible")
-}
 
 setInitialSteamIdFromPath()
 
@@ -143,7 +139,6 @@ async function getProfile(){
     </div>
   `
 
-  turnstileWrapper.classList.add("is-visible")
   const turnstileToken = document.querySelector("[name='cf-turnstile-response']")?.value
 
   if(!turnstileToken){
@@ -167,7 +162,6 @@ async function getProfile(){
   if(window.turnstile){
     window.turnstile.reset()
   }
-  turnstileWrapper.classList.remove("is-visible")
 
   if(data.error){
     result.innerHTML="Kullanıcı bulunamadı."
@@ -230,6 +224,7 @@ async function getProfile(){
     faceitStats,
     faceit
   })
+
   const trustLabel=trust>70?"Yüksek":trust>40?"Orta":"Düşük"
   const trustClass=trust>70?"trust-high":trust>40?"trust-mid":"trust-low"
 
@@ -322,13 +317,13 @@ async function getProfile(){
       <span>Son 2 Hafta</span>
     </div>
 
-    <div class="stat ${vacBans===null?"stat-neutral":vacBans>0?"stat-negative":"stat-positive"}">
-      ${vacBans===null?'<span>Veri yok</span>':vacBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+    <div class="stat">
+      ${bans.NumberOfVACBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
       <span>VAC Ban</span>
     </div>
 
-    <div class="stat ${gameBans===null?"stat-neutral":gameBans>0?"stat-negative":"stat-positive"}">
-      ${gameBans===null?'<span>Veri yok</span>':gameBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
+    <div class="stat">
+      ${bans.NumberOfGameBans>0?'<i class="fa-solid fa-check red"></i>':'<i class="fa-solid fa-xmark green"></i>'}
       <span>Game Ban</span>
     </div>
 

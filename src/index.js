@@ -1,150 +1,6 @@
 const RATE_LIMIT_WINDOW_MS = 60 * 1000
 const RATE_LIMIT_MAX = 20
-const STORE_CURRENCY = "USD"
-const PRICE_FETCH_CONCURRENCY = 5
-const FRIENDS_BATCH_SIZE = 100
 const rateLimitStore = new Map()
-
-function chunkArray(items, size) {
-  const chunks = []
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size))
-  }
-  return chunks
-}
-
-async function fetchJson(url, options) {
-  try {
-    const res = await fetch(url, options)
-    if (!res.ok) return null
-    return await res.json()
-  } catch {
-    return null
-  }
-}
-
-async function mapWithConcurrency(items, limit, asyncFn) {
-  const results = new Array(items.length)
-  let index = 0
-  const workers = new Array(limit).fill(null).map(async () => {
-    while (index < items.length) {
-      const current = index
-      index += 1
-      results[current] = await asyncFn(items[current], current)
-    }
-  })
-  await Promise.all(workers)
-  return results
-}
-
-async function fetchSteamLevel(steamid, key) {
-  const data = await fetchJson(
-    `https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${key}&steamid=${steamid}`
-  )
-  return data?.response?.player_level ?? null
-}
-
-async function fetchBadges(steamid, key) {
-  const data = await fetchJson(
-    `https://api.steampowered.com/IPlayerService/GetBadges/v1/?key=${key}&steamid=${steamid}`
-  )
-  const badges = data?.response?.badges || []
-  const cs2BadgeCount = badges.filter(badge => badge.appid === 730).length
-  const topBadges = [...badges]
-    .filter(badge => typeof badge.xp === "number")
-    .sort((a, b) => b.xp - a.xp)
-    .slice(0, 3)
-    .map(badge => ({
-      badgeid: badge.badgeid,
-      level: badge.level,
-      xp: badge.xp,
-      appid: badge.appid
-    }))
-
-  return { badges, cs2BadgeCount, topBadges }
-}
-
-async function fetchWorkshopStats(steamid, key) {
-  const body = new URLSearchParams({
-    key,
-    steamid,
-    appid: "730",
-    numperpage: "100",
-    return_metadata: "1",
-    return_total_only: "0",
-    filetype: "0"
-  })
-
-  const data = await fetchJson(
-    "https://api.steampowered.com/IPublishedFileService/GetUserFiles/v1/",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body
-    }
-  )
-
-  const files = data?.response?.publishedfiledetails
-    || data?.response?.publishedfileids
-    || data?.response?.files
-    || []
-
-  if (!Array.isArray(files) || files.length === 0) return null
-
-  let likes = 0
-  let comments = 0
-  for (const file of files) {
-    likes += Number(file.votes_up || 0)
-    comments += Number(file.num_comments_public || file.num_comments || 0)
-  }
-
-  return { likes, comments, items: files.length }
-}
-
-async function fetchFriendBanStats(steamid, key) {
-  const friendsData = await fetchJson(
-    `https://api.steampowered.com/ISteamUser/GetFriendList/v1/?key=${key}&steamid=${steamid}&relationship=friend`
-  )
-
-  const friends = friendsData?.friendslist?.friends
-  if (!Array.isArray(friends) || friends.length === 0) return null
-
-  const friendIds = friends.map(friend => friend.steamid)
-  const batches = chunkArray(friendIds, FRIENDS_BATCH_SIZE)
-  let bannedFriends = 0
-
-  for (const batch of batches) {
-    const bansData = await fetchJson(
-      `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${key}&steamids=${batch.join(",")}`
-    )
-    const players = bansData?.players || []
-    for (const player of players) {
-      if ((player.NumberOfVACBans || 0) > 0 || (player.NumberOfGameBans || 0) > 0) {
-        bannedFriends += 1
-      }
-    }
-  }
-
-  return { totalFriends: friendIds.length, bannedFriends }
-}
-
-async function fetchAccountValue(games) {
-  if (!Array.isArray(games) || games.length === 0) return null
-
-  const values = await mapWithConcurrency(games, PRICE_FETCH_CONCURRENCY, async (game) => {
-    const data = await fetchJson(
-      `https://store.steampowered.com/api/appdetails?appids=${game.appid}&cc=us&l=en`
-    )
-    const appData = data?.[game.appid]?.data
-    if (!appData || appData.is_free) return 0
-    const price = appData.price_overview?.final
-    if (!price) return 0
-    return price / 100
-  })
-
-  const total = values.reduce((acc, value) => acc + (value || 0), 0)
-  return total
-}
 
 function checkRateLimit(ip) {
   const now = Date.now()
@@ -171,14 +27,33 @@ export default {
     const FACEIT_KEY = env.FACEIT_KEY
     const TURNSTILE_SECRET = env.TURNSTILE_SECRET
 
+    const allowedOrigins = new Set([
+      "https://cs2.frudotz.com",
+      "https://frudotz.github.io"
+    ])
+
+    const origin = request.headers.get("Origin") || ""
+    const isAllowedOrigin = allowedOrigins.has(origin)
+
     const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": isAllowedOrigin ? origin : "",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token"
+      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+      "Vary": "Origin"
     }
 
     if (request.method === "OPTIONS") {
+      if (!isAllowedOrigin) {
+        return new Response("Origin not allowed", { status: 403 })
+      }
       return new Response(null, { headers: corsHeaders })
+    }
+
+    if (!isAllowedOrigin) {
+      return new Response(JSON.stringify({ error: "Origin not allowed" }), {
+        headers: corsHeaders,
+        status: 403
+      })
     }
 
     try {
@@ -321,9 +196,7 @@ export default {
       const bans = banData.players[0]
 
       // ========== STEAM META ==========
-      const steamLevel = typeof fetchSteamLevel === "function"
-        ? await fetchSteamLevel(steamid, STEAM_KEY)
-        : null
+      const steamLevel = await fetchSteamLevel(steamid, STEAM_KEY)
       const badgeData = await fetchBadges(steamid, STEAM_KEY)
       const workshopStats = await fetchWorkshopStats(steamid, STEAM_KEY)
       const friendBanStats = await fetchFriendBanStats(steamid, STEAM_KEY)
