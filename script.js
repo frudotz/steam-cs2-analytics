@@ -423,24 +423,28 @@ const hexid = steamID64ToHexID(steamid64)
   <div class="card-title">Steam Kimlikleri</div>
 
   <div class="grid-4">
-    <div class="stat" onclick="navigator.clipboard.writeText('${steamid64}')">
+    <div class="stat" onclick="navigator.clipboard.writeText('${steamid64}')" style="cursor: pointer;">
       <span>SteamID64</span>
       <strong>${steamid64}</strong>
+      <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
 
-    <div class="stat" onclick="navigator.clipboard.writeText('${hexid}')">
+    <div class="stat" onclick="navigator.clipboard.writeText('${hexid}')" style="cursor: pointer;">
       <span>HexID</span>
       <strong>${hexid}</strong>
+      <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
 
-    <div class="stat" onclick="navigator.clipboard.writeText('${steamid}')">
+    <div class="stat" onclick="navigator.clipboard.writeText('${steamid}')" style="cursor: pointer;">
       <span>SteamID</span>
       <strong>${steamid}</strong>
+      <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
 
-    <div class="stat" onclick="navigator.clipboard.writeText('${steamid3}')">
+    <div class="stat" onclick="navigator.clipboard.writeText('${steamid3}')" style="cursor: pointer;">
       <span>SteamID3</span>
       <strong>${steamid3}</strong>
+      <small style="font-size: 11px;color: gray;">Kopyalamak için tıkla!</small>
     </div>
   </div>
 </div>
