@@ -166,6 +166,22 @@ async function getProfile(){
   const hours=cs2?Math.floor(cs2.playtime_forever/60):null
   const last2w=cs2?Math.floor((cs2.playtime_2weeks||0)/60):null
 
+  const accountValueText=formatCurrency(accountValue,accountValueCurrency)
+  const serviceYearsText=(serviceYears===null||serviceYears===undefined) ? "Veri yok" : `${serviceYears} yıl`
+  const levelText=steamLevel??"Veri yok"
+  const friendBanText=friendBanStats
+    ? `${friendBanStats.bannedFriends}/${friendBanStats.totalFriends}`
+    : "Veri yok"
+  const topBadgeMarkup=topBadges.length
+    ? topBadges.map(badge=>`
+      <div class="mini-badge">
+        <span>XP ${formatNumber(badge.xp)}</span>
+        <small>Badge #${badge.badgeid}</small>
+      </div>
+    `).join("")
+    : `<div class="mini-badge empty">Veri yok</div>`
+
+
   const trust=calculateTrustScore({
     ageYears:age==="Gizli"?null:age,
     totalHours:hours,
