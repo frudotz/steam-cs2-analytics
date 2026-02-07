@@ -1,7 +1,9 @@
+// ================== CORS ==================
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+  "Content-Type": "application/json"
 }
 
 // ================== GLOBAL HELPERS ==================
@@ -16,16 +18,16 @@ function checkRateLimit(ip) {
 
   if (!entry || now > entry.resetAt) {
     rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return { allowed: true }
+    return true
   }
 
-  if (entry.count >= RATE_LIMIT_MAX) return { allowed: false }
+  if (entry.count >= RATE_LIMIT_MAX) return false
 
   entry.count++
-  return { allowed: true }
+  return true
 }
 
-// ---------- Steam helpers ----------
+// ================== STEAM HELPERS ==================
 async function fetchSteamLevel(steamid, key) {
   const r = await fetch(
     `https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?key=${key}&steamid=${steamid}`
@@ -141,25 +143,34 @@ function calculateProfileCompleteness({
   return Math.min(s, 100)
 }
 
-if (request.method === "OPTIONS") {
-  return new Response(null, { headers: CORS_HEADERS })
-}
 // ================== WORKER ==================
 export default {
   async fetch(request, env) {
+
+    // ✅ CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: CORS_HEADERS })
+    }
+
     try {
       const ip =
         request.headers.get("cf-connecting-ip") ||
         request.headers.get("x-forwarded-for") ||
         "unknown"
 
-      if (!checkRateLimit(ip).allowed) {
-        return new Response(JSON.stringify({ error: "Rate limit" }), { status: 429 })
+      if (!checkRateLimit(ip)) {
+        return new Response(
+          JSON.stringify({ error: "Rate limit" }),
+          { status: 429, headers: CORS_HEADERS }
+        )
       }
 
       const turnstileToken = request.headers.get("x-turnstile-token")
       if (!turnstileToken) {
-        return new Response(JSON.stringify({ error: "Captcha gerekli" }), { status: 403 })
+        return new Response(
+          JSON.stringify({ error: "Captcha gerekli" }),
+          { status: 403, headers: CORS_HEADERS }
+        )
       }
 
       const verify = await fetch(
@@ -177,15 +188,19 @@ export default {
 
       const vd = await verify.json()
       if (!vd.success) {
-        return new Response(JSON.stringify({ error: "Captcha doğrulaması başarısız" }), {
-          status: 403
-        })
+        return new Response(
+          JSON.stringify({ error: "Captcha doğrulaması başarısız" }),
+          { status: 403, headers: CORS_HEADERS }
+        )
       }
 
       const url = new URL(request.url)
       let steamid = url.searchParams.get("steamid")
       if (!steamid) {
-        return new Response(JSON.stringify({ error: "SteamID gerekli" }), { status: 400 })
+        return new Response(
+          JSON.stringify({ error: "SteamID gerekli" }),
+          { status: 400, headers: CORS_HEADERS }
+        )
       }
 
       if (!/^\d{17}$/.test(steamid)) {
@@ -194,9 +209,10 @@ export default {
         )
         const vj = await vr.json()
         if (vj.response.success !== 1) {
-          return new Response(JSON.stringify({ error: "Kullanıcı bulunamadı" }), {
-            status: 404
-          })
+          return new Response(
+            JSON.stringify({ error: "Kullanıcı bulunamadı" }),
+            { status: 404, headers: CORS_HEADERS }
+          )
         }
         steamid = vj.response.steamid
       }
@@ -251,12 +267,14 @@ export default {
           friendBanStats,
           profileCompleteness
         }),
-        { headers: { "Content-Type": "application/json" } }
+        { headers: CORS_HEADERS }
       )
+
     } catch (e) {
-      return new Response(JSON.stringify({ error: true, message: e.message }), {
-        status: 500
-      })
+      return new Response(
+        JSON.stringify({ error: true, message: e.message }),
+        { status: 500, headers: CORS_HEADERS }
+      )
     }
   }
 }
