@@ -1,4 +1,4 @@
-const API_URL = "https://cs2.frudotz.com/api/"
+const API_URL = "https://api.cs2.frudotz.com/"
 
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
@@ -166,11 +166,12 @@ async function getProfile() {
     return
   }
 
-  const res=await fetch(API_URL+"?steamid="+encodeURIComponent(input), {
-    headers: {
-      "X-Turnstile-Token": turnstileToken
-    }
-  })
+  const res = await fetch(API_URL + "?steamid=" + encodeURIComponent(input), {
+  headers: {
+    "X-Turnstile-Token": turnstileToken
+  },
+  credentials: "include"
+})
 
   if(!res.ok){
     const errorText = await res.text()
