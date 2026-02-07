@@ -427,3 +427,161 @@ a:not(.name-link){
     grid-template-columns:1fr;
   }
 }
+
+/* =========================
+   MOBILE OPTIMIZATION
+   ========================= */
+
+@media (max-width: 480px) {
+
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 20px 14px 60px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 20px 16px 26px;
+    border-radius: 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+    line-height: 1.3;
+  }
+
+  .hero-sub {
+    font-size: 13px;
+  }
+
+  /* SEARCH */
+  .search-box input,
+  .search-box button {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  .search-box button {
+    font-weight: 700;
+  }
+
+  /* SECURITY ROW */
+  .security-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* CARDS */
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  /* PROFILE */
+  .profile-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .name {
+    font-size: 16px;
+  }
+
+  .sub {
+    font-size: 12px;
+  }
+
+  /* BADGES */
+  .profile-badges {
+    position: static;
+    margin-top: 12px;
+    justify-content: center;
+  }
+
+  .badge-pill {
+    min-width: auto;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .badge-pill span {
+    font-size: 9px;
+  }
+
+  .faceit-rank-badge {
+    width: 52px;
+  }
+
+  .steam-games-badge {
+    width: 52px;
+  }
+
+  /* GRID STATS */
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat {
+    padding: 10px 6px;
+    font-size: 14px;
+  }
+
+  .stat span {
+    font-size: 11px;
+  }
+
+  /* FACEIT */
+  .faceit-name {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .faceit-substats {
+    grid-template-columns: 1fr;
+  }
+
+  .mini-stat {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* TRUST */
+  .trust-score {
+    font-size: 18px;
+  }
+
+  .trust-label {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .trust-bar-bg {
+    height: 14px;
+  }
+
+  /* COMMUNITY */
+  .mini-badge {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .mini-badge small {
+    font-size: 9px;
+  }
+}
