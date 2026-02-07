@@ -5,9 +5,7 @@ const steamInput = document.getElementById("steamid")
 const turnstileWrapper = document.getElementById("turnstileWrapper")
 const turnstileElement = document.querySelector(".cf-turnstile")
 const turnstileSiteKey = turnstileElement?.dataset?.sitekey
-const isTurnstileConfigured = Boolean(turnstileSiteKey && turnstileSiteKey !== "PASTE_TURNSTILE_SITE_KEY")
-
-const isTurnstileConfigured = !!document.querySelector(".cf-turnstile")
+const isTurnstileConfigured = Boolean(turnstileSiteKey && turnstileSiteKey !== "0x4AAAAAACYnRshc6UW7llC-")
 
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
