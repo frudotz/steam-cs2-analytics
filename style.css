@@ -443,8 +443,7 @@ a:not(.name-link){
   .container {
     max-width: 640px;
     margin: auto;
-    padding: 330px 28px 70px;
-    transform: scale(1.53);
+    padding: 24px 28px 70px;
 }
 
   .steam{
@@ -453,6 +452,11 @@ a:not(.name-link){
 
   .steam small{
     font-size: 9px;
+  }
+
+  .trust-high {
+    align-self: flex-end;
+    position: absolute;
   }
 
   h1{
