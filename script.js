@@ -3,6 +3,8 @@ const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
 
+const isTurnstileConfigured = !!document.querySelector(".cf-turnstile")
+
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
