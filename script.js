@@ -1,139 +1,83 @@
-// ================== CONFIG ==================
 const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
 
-// ================== ELEMENTS ==================
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
-const result = document.getElementById("result")
 
-// ================== TURNSTILE ==================
+// === UI refs (mevcut tasarımına göre) ===
+const avatarEl = document.getElementById("profileAvatar")
+const nameEl = document.getElementById("profileName")
+const steamLevelEl = document.getElementById("profileSteamLevel")
+
+const completenessValueEl = document.getElementById("profileCompletenessValue")
+const completenessBarEl = document.getElementById("profileCompletenessBar")
+const completenessLabelEl = document.getElementById("profileCompletenessLabel")
+
 let currentTurnstileToken = null
+window.onTurnstileSuccess = token => (currentTurnstileToken = token)
 
-window.onTurnstileSuccess = function (token) {
-  currentTurnstileToken = token
-}
+searchBtn.onclick = getProfile
+steamInput.onkeydown = e => e.key === "Enter" && getProfile()
 
-// ================== EVENTS ==================
-searchBtn.addEventListener("click", getProfile)
-steamInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") getProfile()
-})
-
-// ================== MAIN ==================
 async function getProfile() {
   const input = steamInput.value.trim()
   if (!input) return
 
-  // Captcha kontrolü
   if (!currentTurnstileToken) {
-    result.innerHTML = `
-      <div class="card error-card">
-        Lütfen captcha doğrulamasını tamamla.
-      </div>
-    `
+    alert("Lütfen captcha doğrulamasını tamamla.")
     return
   }
 
-  // Loading state
-  result.innerHTML = `
-    <div class="card loading-card">
-      <div class="loader"></div>
-      <div>Analiz hazırlanıyor...</div>
-    </div>
-  `
+  searchBtn.disabled = true
+  searchBtn.textContent = "Yükleniyor…"
 
   let res
   try {
-    res = await fetch(
-      API_URL + "?steamid=" + encodeURIComponent(input),
-      {
-        headers: {
-          "X-Turnstile-Token": currentTurnstileToken
-        }
+    res = await fetch(API_URL + "?steamid=" + encodeURIComponent(input), {
+      headers: {
+        "X-Turnstile-Token": currentTurnstileToken
       }
-    )
-  } catch (err) {
-    result.innerHTML = `
-      <div class="card error-card">
-        Sunucuya bağlanılamadı.
-      </div>
-    `
+    })
+  } catch {
+    alert("Sunucuya bağlanılamadı.")
     resetTurnstile()
     return
   }
 
-  // Token tek kullanımlık
   resetTurnstile()
+  searchBtn.disabled = false
+  searchBtn.textContent = "Getir"
 
   if (!res.ok) {
-    let msg = "Sunucu hatası"
-    try {
-      const e = await res.json()
-      msg = e?.error || e?.message || msg
-    } catch {}
-
-    result.innerHTML = `
-      <div class="card error-card">
-        ${msg}
-      </div>
-    `
+    alert("Sunucu hatası")
     return
   }
 
   const data = await res.json()
 
-  // ================== PROFILE COMPLETENESS ==================
+  // === PROFIL KARTI ===
+  avatarEl.src = data.profile.avatarfull
+  nameEl.textContent = data.profile.personaname
+  steamLevelEl.textContent = `Steam Level: ${data.steamLevel ?? "?"}`
+
+  // === PROFIL DOLULUĞU ===
   const pc = data.profileCompleteness ?? 0
 
-  const pcLabel =
-    pc > 70 ? "Dolu" :
-    pc > 40 ? "Orta" :
-    "Zayıf"
+  completenessValueEl.textContent = `${pc}/100`
+  completenessBarEl.style.width = `${pc}%`
 
-  const pcClass =
-    pc > 70 ? "trust-high" :
-    pc > 40 ? "trust-mid" :
-    "trust-low"
-
-  // ================== RENDER ==================
-  result.innerHTML = `
-    <div class="card profile-card">
-      <div class="profile-header">
-        <img src="${data.profile.avatarfull}" alt="avatar">
-        <div>
-          <div class="profile-name">${data.profile.personaname}</div>
-          <div class="profile-sub">
-            Steam Level: ${data.steamLevel ?? "?"}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card glow-card">
-      <div class="card-title">Profil Doluluğu</div>
-
-      <div class="trust-wrapper">
-        <div class="trust-header">
-          <span class="trust-score">${pc}/100</span>
-          <span class="trust-label ${pcClass}">${pcLabel}</span>
-        </div>
-
-        <div class="trust-bar-bg">
-          <div class="trust-bar-fill" style="width:${pc}%"></div>
-        </div>
-
-        <small class="muted">
-          Steam’in herkese açık sunduğu profil sinyallerine göre hesaplanır.
-        </small>
-      </div>
-    </div>
-  `
+  if (pc > 70) {
+    completenessLabelEl.textContent = "DOLU"
+    completenessLabelEl.className = "badge badge-success"
+  } else if (pc > 40) {
+    completenessLabelEl.textContent = "ORTA"
+    completenessLabelEl.className = "badge badge-warning"
+  } else {
+    completenessLabelEl.textContent = "ZAYIF"
+    completenessLabelEl.className = "badge badge-danger"
+  }
 }
 
-// ================== HELPERS ==================
 function resetTurnstile() {
   currentTurnstileToken = null
-  if (window.turnstile) {
-    window.turnstile.reset()
-  }
+  window.turnstile?.reset()
 }
