@@ -72,12 +72,14 @@ async function verifyAccessJWT(request, env) {
 export default {
   async fetch(request, env) {
 
-        // 🔐 Cloudflare Access kontrolü
-    try {
-      await verifyAccessJWT(request, env)
-    } catch {
-      return new Response("Access denied", { status: 403 })
-    }
+   // 🔐 Cloudflare Access kontrolü
+if (request.method !== "OPTIONS") {
+  try {
+    await verifyAccessJWT(request, env)
+  } catch {
+    return new Response("Access denied", { status: 403 })
+  }
+}
 
     const STEAM_KEY = env.STEAM_KEY
     const FACEIT_KEY = env.FACEIT_KEY
