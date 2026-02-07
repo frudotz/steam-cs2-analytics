@@ -1,4 +1,4 @@
-const API_URL = "https://steam-cs2-analytics.frudotz.workers.dev/"
+const API_URL = "https://api.frudotz.com/"
 
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
