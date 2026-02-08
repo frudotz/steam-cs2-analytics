@@ -1,3 +1,25 @@
+function buildCorsHeaders(origin) {
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+    "Vary": "Origin"
+  }
+}
+
+if (request.method === "OPTIONS") {
+  if (!corsHeaders) {
+    return new Response("Origin not allowed", {
+      status: 403,
+      headers: {
+        "Access-Control-Allow-Origin": "null"
+      }
+    })
+  }
+  return new Response(null, { headers: corsHeaders })
+}
+
 const RATE_LIMIT_WINDOW_MS = 60 * 1000
 const RATE_LIMIT_MAX = 20
 const rateLimitStore = new Map()
@@ -76,33 +98,27 @@ export default {
     const FACEIT_KEY = env.FACEIT_KEY
     const TURNSTILE_SECRET = env.TURNSTILE_SECRET
 
-    const allowedOrigins = new Set([
-      "https://cs2.frudotz.com",
-      "https://frudotz.github.io"
-    ])
-
     const origin = request.headers.get("Origin")
 
-if (!allowedOrigins.has(origin)) {
-  return new Response("Origin not allowed", { status: 403 })
-}
+const allowedOrigins = new Set([
+  "https://cs2.frudotz.com",
+  "https://frudotz.github.io"
+])
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": origin,
-  "Access-Control-Allow-Credentials": "true",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
-  "Vary": "Origin"
-}
+const corsHeaders =
+  origin && allowedOrigins.has(origin)
+    ? buildCorsHeaders(origin)
+    : null
 
-if (request.method === "OPTIONS") {
-  return new Response(null, { headers: corsHeaders })
+if (!corsHeaders) {
+  return new Response("Origin not allowed", {
+    status: 403,
+    headers: {
+      "Access-Control-Allow-Origin": "null"
+    }
+  })
 }
-
-    if (!isAllowedOrigin) {
-  return new Response("Origin not allowed", { status: 403 })
-}
-
+    
     try {
       const ip = request.headers.get("cf-connecting-ip")
         || request.headers.get("x-forwarded-for")
