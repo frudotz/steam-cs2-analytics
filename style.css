@@ -23,7 +23,7 @@ body{
     bottom: -2px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 12px;
+    font-size: 11px;
     color: gray;
     z-index: 999;
     padding: 24px 32px;
@@ -31,6 +31,7 @@ body{
     border: 1px solid rgba(148, 163, 184, .2);
     backdrop-filter: blur(16px);
     border-radius: 16px 16px 0px 0px;
+    white-space: nowrap;
 }
 
 .hero{
