@@ -72,15 +72,6 @@ async function verifyAccessJWT(request, env) {
 export default {
   async fetch(request, env) {
 
-   // 🔐 Cloudflare Access kontrolü
-if (request.method !== "OPTIONS") {
-  try {
-    await verifyAccessJWT(request, env)
-  } catch {
-    return new Response("Access denied", { status: 403 })
-  }
-}
-
     const STEAM_KEY = env.STEAM_KEY
     const FACEIT_KEY = env.FACEIT_KEY
     const TURNSTILE_SECRET = env.TURNSTILE_SECRET
@@ -90,10 +81,17 @@ if (request.method !== "OPTIONS") {
       "https://frudotz.github.io"
     ])
 
-    const origin = request.headers.get("Origin") || ""
-    const isAllowedOrigin = allowedOrigins.has(origin)
+    const origin = request.headers.get("Origin")
 
-    const corsHeaders = {
+const allowedOrigins = new Set([
+  "https://cs2.frudotz.com"
+])
+
+if (!allowedOrigins.has(origin)) {
+  return new Response("Origin not allowed", { status: 403 })
+}
+
+const corsHeaders = {
   "Access-Control-Allow-Origin": origin,
   "Access-Control-Allow-Credentials": "true",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -101,12 +99,9 @@ if (request.method !== "OPTIONS") {
   "Vary": "Origin"
 }
 
-    if (request.method === "OPTIONS") {
-      if (!isAllowedOrigin) {
-        return new Response("Origin not allowed", { status: 403 })
-      }
-      return new Response(null, { headers: corsHeaders })
-    }
+if (request.method === "OPTIONS") {
+  return new Response(null, { headers: corsHeaders })
+}
 
     if (!isAllowedOrigin) {
   return new Response("Origin not allowed", { status: 403 })
