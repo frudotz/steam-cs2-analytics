@@ -83,10 +83,6 @@ export default {
 
     const origin = request.headers.get("Origin")
 
-const allowedOrigins = new Set([
-  "https://cs2.frudotz.com"
-])
-
 if (!allowedOrigins.has(origin)) {
   return new Response("Origin not allowed", { status: 403 })
 }
