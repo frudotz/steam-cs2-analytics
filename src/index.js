@@ -8,18 +8,6 @@ function buildCorsHeaders(origin) {
   }
 }
 
-if (request.method === "OPTIONS") {
-  if (!corsHeaders) {
-    return new Response("Origin not allowed", {
-      status: 403,
-      headers: {
-        "Access-Control-Allow-Origin": "null"
-      }
-    })
-  }
-  return new Response(null, { headers: corsHeaders })
-}
-
 const RATE_LIMIT_WINDOW_MS = 60 * 1000
 const RATE_LIMIT_MAX = 20
 const rateLimitStore = new Map()
@@ -110,6 +98,20 @@ const corsHeaders =
     ? buildCorsHeaders(origin)
     : null
 
+    // 1️⃣ OPTIONS HER ZAMAN EN ÜSTTE
+if (request.method === "OPTIONS") {
+  if (!corsHeaders) {
+    return new Response("Origin not allowed", {
+      status: 403,
+      headers: {
+        "Access-Control-Allow-Origin": "null"
+      }
+    })
+  }
+  return new Response(null, { headers: corsHeaders })
+}
+
+// 2️⃣ NORMAL REQUEST’TE ORIGIN KONTROLÜ
 if (!corsHeaders) {
   return new Response("Origin not allowed", {
     status: 403,
