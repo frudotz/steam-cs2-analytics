@@ -7,8 +7,6 @@ Ama ortaya çıkan şey bir “demo” değil;
 **gerçek kullanım senaryoları gözetilerek**, abuse’a açık noktaları özellikle kapatılmaya çalışılmış,  
 okuyan kişinin “bu niye böyle yapılmış?” sorusuna cevap verebilen bir sistemdir.
 
----
-
 ## 🎯 Projenin Amacı
 
 Bu proje, bir Steam hesabını **CS2 özelinde** değerlendirerek:
@@ -23,13 +21,11 @@ Amaç:
 - Yeni ama aktif hesapları otomatik olarak cezalandırmamak  
 - Hesap davranışını, olgunluğunu ve geçmişini **dengeleyerek** yorumlamak  
 
----
-
 ## 🧱 Genel Mimari
 
 ```
 
-Frontend (sizin siteniz)
+Frontend (cs2.frudotz.com)
 │
 │ fetch + credentials
 │
@@ -51,8 +47,6 @@ Bu yapı:
 - Global
 - Ölçeklenebilir
 - Abuse’a karşı katmanlı korumaya sahip
-
----
 
 ## 🔐 Güvenlik Yaklaşımı
 
@@ -78,8 +72,6 @@ Uygulanan katmanlar:
 Sonuç olarak:
 - Frontend üzerinden sorunsuz çalışır  
 - Harici denemelerde anlamlı veri üretmez  
-
----
 
 ## 📊 Güven Skoru Nasıl Hesaplanır?
 
@@ -109,8 +101,6 @@ Güven Skoru =
 > - FACEIT profili **yoksa** bu kısım 0 kabul edilir, negatif etki yaratmaz  
 > - VAC / Game Ban varsa bu katkı **tamamen sıfırlanır**  
 > - Hiçbir kriter tek başına skoru domine edemez  
-
----
 
 ## 🧮 Örnek Hesaplama
 
@@ -148,8 +138,6 @@ Amaç:
 > “Bu hesap kesin temiz” demek değil,  
 > **risk profilini sayısal olarak ifade etmek**.
 
----
-
 ## 🖼️ Arayüz & Görseller
 
 Projeyi kullananlar için arayüz örnekleri aşağıdaki gibi eklenebilir.
@@ -157,8 +145,6 @@ Projeyi kullananlar için arayüz örnekleri aşağıdaki gibi eklenebilir.
 ![Ana Ekran](docs/images/home.png)
 ![Profil Analizi](docs/images/profile.png)
 ![Güven Skoru Detayı](docs/images/trust-score.png)
-
----
 
 ## ⚙️ Kurulum (Kendi Ortamınızda)
 
@@ -174,8 +160,6 @@ Bu projeyi kullanmak için **kendi alan adınız ve kendi API anahtarlarınız**
 * (Opsiyonel) FACEIT API Key
 * Node.js 18+
 
----
-
 ### Genel Kurulum Adımları
 
 1. Projeyi fork’layın veya klonlayın
@@ -188,14 +172,21 @@ Bu projeyi kullanmak için **kendi alan adınız ve kendi API anahtarlarınız**
 Bu repo **örnek bir servis adresi dağıtmaz**.  
 Her kurulum **kullanıcının kendi altyapısı** üzerinden yapılmalıdır.
 
----
+# 📝 Lisans & Sorumluluk Reddi
 
-## ⚠️ Sorumluluk Reddi
+- 🫷 **Sorumluluk Reddi**
+  - Bu proje **istatistiksel bir güven değerlendirmesi** için ücretsiz olarak sunulur.  
+  - Geliştirme aşamasında umuma açık kaynaklardan, ücretsiz API'lardan ve yapay zekadan faydalanılmış olup,  
+  - Veri sağlayıcılara ait, dışa kapalı ya da ücretli herhangi bir kaynak suistimal edilmemiştir.   
 
-Bu proje sadece **istatistiksel bir güven değerlendirmesi** sunar.  
-Son karar her zaman kullanıcıya veya sistemi kullanan platforma aittir.
+- ℹ️ **Lisans Bilgilendirmesi**
+  - Projeye ait tüm kodlar ve projenin kendisi **GPL-3.0** kapsamında lisanslanmıştır.  
+  - Bu yazılım **herhangi bir ücrete tabi olmaksızın** kullanılabilir, incelenebilir, değiştirilebilir/geliştirilebilir, dağıtılabilir.  
+  - Dağıtılan tüm kopyalar ve türev çalışmalar **GPL-3.0 kullanım şartları** kapsamında aynı lisans altında kalmalı,  
+  - Kaynak kodları erişilebilir olmalı ve tarafıma ait **telif/lisans eklentileri (@frudotz) korunmalıdır.**  
+  - Lisansa dair tüm bilgiler için: [LICENSE dosyası.](https://github.com/frudotz/steam-cs2-analytics/blob/main/LICENSE)  
 
----
+*Son karar her zaman kullanıcıya veya sistemi kullanan platforma aittir.*
 
 # 🤝 Katkıda Bulun / Bağış
 
