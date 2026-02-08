@@ -18,6 +18,21 @@ body{
   padding:36px 28px 70px;
 }
 
+.site-footer {
+    position: fixed;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: gray;
+    z-index: 999;
+    padding: 24px 32px;
+    background: rgba(15, 23, 42, .7);
+    border: 1px solid rgba(148, 163, 184, .2);
+    backdrop-filter: blur(16px);
+    border-radius: 16px 16px 0px 0px;
+}
+
 .hero{
   position:relative;
   padding:26px 24px 34px;
@@ -418,22 +433,6 @@ a:not(.name-link){
   border-top-color:#38bdf8;
   animation:spin .8s linear infinite;
 }
-
-.site-footer {
-    position: fixed;
-    bottom: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: gray;
-    z-index: 999;
-    padding: 24px 32px;
-    background: rgba(15, 23, 42, .7);
-    border: 1px solid rgba(148, 163, 184, .2);
-    backdrop-filter: blur(16px);
-    border-radius: 16px 16px 0px 0px;
-}
-
 
 @keyframes spin{
   to{transform:rotate(360deg);}
