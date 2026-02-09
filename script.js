@@ -4,6 +4,11 @@ const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
 const turnstileWrapper = document.getElementById("turnstileWrapper")
 
+function isTurnstileSolved() {
+  const token = document.querySelector("[name='cf-turnstile-response']")?.value;
+  return !!token;
+}
+
 setInitialSteamIdFromPath()
 
 steamInput.addEventListener("keydown", e=>{
@@ -21,6 +26,11 @@ function setInitialSteamIdFromPath() {
 
   steamInput.value = decodeURIComponent(value);
   hasPendingAutoQuery = true;
+
+  if (isTurnstileSolved()) {
+    hasPendingAutoQuery = false;
+    getProfile();
+  }
 }
 
 function calculateAge(ts){
