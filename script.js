@@ -12,9 +12,17 @@ steamInput.addEventListener("keydown", e=>{
 setInitialSteamIdFromPath()
 
 function setInitialSteamIdFromPath(){
-  const path = window.location.pathname.replace(/^\/+|\/+$/g, "")
-  if(!path) return
-  steamInput.value = decodeURIComponent(path)
+  let path = window.location.pathname
+
+  if (!path || path === "/") return
+
+  // Baştaki slash’i sil
+  path = path.slice(1)
+
+  // Çok segment varsa birleştir
+  const value = decodeURIComponent(path)
+
+  steamInput.value = value
   getProfile()
 }
 
