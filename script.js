@@ -3,27 +3,25 @@ const API_URL = "https://api.frudotz.com/"
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
 const turnstileWrapper = document.getElementById("turnstileWrapper")
-
+setInitialSteamIdFromPath()
 searchBtn.addEventListener("click", getProfile)
 steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
 })
 
-setInitialSteamIdFromPath()
+
 
 function setInitialSteamIdFromPath(){
-  let value = ""
+  let value = "";
 
-  if (window.location.hash) {
-    value = window.location.hash.slice(1)
-  } else if (window.location.pathname !== "/") {
-    value = window.location.pathname.slice(1)
+  if (window.location.hash.startsWith("#/")) {
+    value = window.location.hash.slice(2);
   }
 
-  if (!value) return
+  if (!value) return;
 
-  steamInput.value = decodeURIComponent(value)
-  getProfile()
+  steamInput.value = decodeURIComponent(value);
+  getProfile();
 }
 
 function calculateAge(ts){
