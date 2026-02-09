@@ -142,7 +142,7 @@ Amaç:
 
 Projeyi kullananlar için arayüz örnekleri aşağıdaki gibi eklenebilir.
 
-### 🖥️ Masaüstü
+### 🖥️ Masaüstü & 📱 Mobil
 
 <p align="left">
   <img src="img/MainPage-Desktop.png" width="270" alt="Ana Ekran - Masaüstü">
