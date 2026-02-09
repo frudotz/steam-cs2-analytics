@@ -1,3 +1,5 @@
+console.log("ORIGIN:", origin)
+
 function buildCorsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin,
@@ -88,13 +90,16 @@ export default {
 
     const origin = request.headers.get("Origin")
 
-const allowedOrigins = origin?.endsWith(".frudotz.com")
-  || origin === "https://frudotz.github.io"
+const isAllowedOrigin =
+  origin &&
+  (
+    origin.endsWith(".frudotz.com") ||
+    origin === "https://frudotz.github.io"
+  )
 
-const corsHeaders =
-  origin && allowedOrigins.has(origin)
-    ? buildCorsHeaders(origin)
-    : null
+const corsHeaders = isAllowedOrigin
+  ? buildCorsHeaders(origin)
+  : null
 
     // 1️⃣ OPTIONS HER ZAMAN EN ÜSTTE
 if (request.method === "OPTIONS") {
