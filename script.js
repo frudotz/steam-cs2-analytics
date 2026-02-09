@@ -1,27 +1,26 @@
 const API_URL = "https://api.frudotz.com/"
-
+let hasPendingAutoQuery = false;
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
 const turnstileWrapper = document.getElementById("turnstileWrapper")
+
 setInitialSteamIdFromPath()
-searchBtn.addEventListener("click", getProfile)
+
 steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
 })
 
-
-
-function setInitialSteamIdFromPath(){
+function setInitialSteamIdFromPath() {
   let value = "";
 
-  if (window.location.hash.startsWith("#/")) {
-    value = window.location.hash.slice(2);
+  if (window.location.hash) {
+    value = window.location.hash.replace(/^#\/?/, "");
   }
 
   if (!value) return;
 
   steamInput.value = decodeURIComponent(value);
-  getProfile();
+  hasPendingAutoQuery = true;
 }
 
 function calculateAge(ts){
@@ -456,6 +455,19 @@ const hexid = steamID64ToHexID(steamid64)
 </div>
 `
 }
+
+window.onTurnstileSuccess = function () {
+  if (!hasPendingAutoQuery) return;
+  if (!steamInput.value.trim()) return;
+
+  hasPendingAutoQuery = false;
+  getProfile();
+};
+
+searchBtn.addEventListener("click", () => {
+  hasPendingAutoQuery = false;
+  getProfile();
+});
 
 function loadTurnstileScript(){
   if(document.querySelector("script[data-turnstile]")) return
