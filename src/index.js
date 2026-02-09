@@ -103,7 +103,7 @@ if (request.method === "OPTIONS") {
     headers: {
       "Access-Control-Allow-Origin": origin || "*",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+      "Access-Control-Allow-Headers": "*",
       "Access-Control-Allow-Credentials": "true",
       "Access-Control-Max-Age": "86400"
     }
