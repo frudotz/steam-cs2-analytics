@@ -88,10 +88,8 @@ export default {
 
     const origin = request.headers.get("Origin")
 
-const allowedOrigins = new Set([
-  "https://cs2.frudotz.com",
-  "https://frudotz.github.io"
-])
+const allowedOrigins = origin?.endsWith(".frudotz.com")
+  || origin === "https://frudotz.github.io"
 
 const corsHeaders =
   origin && allowedOrigins.has(origin)
@@ -100,15 +98,16 @@ const corsHeaders =
 
     // 1️⃣ OPTIONS HER ZAMAN EN ÜSTTE
 if (request.method === "OPTIONS") {
-  if (!corsHeaders) {
-    return new Response("Origin not allowed", {
-      status: 403,
-      headers: {
-        "Access-Control-Allow-Origin": "null"
-      }
-    })
-  }
-  return new Response(null, { headers: corsHeaders })
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": origin || "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, X-Turnstile-Token",
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Max-Age": "86400"
+    }
+  })
 }
 
 // 2️⃣ NORMAL REQUEST’TE ORIGIN KONTROLÜ
