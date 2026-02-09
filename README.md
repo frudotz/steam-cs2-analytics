@@ -142,9 +142,14 @@ Amaç:
 
 Projeyi kullananlar için arayüz örnekleri aşağıdaki gibi eklenebilir.
 
-![Ana Ekran](docs/images/home.png)
-![Profil Analizi](docs/images/profile.png)
-![Güven Skoru Detayı](docs/images/trust-score.png)
+### 🖥️ Masaüstü
+
+<p align="left">
+  <img src="img/MainPage-Desktop.png" width="300" alt="Ana Ekran - Masaüstü">
+  <img src="img/ExampleQuery-Desktop.png" width="300" alt="Örnek Sorgu - Masaüstü">
+  <img src="img/MainPage-Mobile.png" height="300" alt="Ana Ekran - Mobil">
+  <img src="img/ExampleQuery-Mobile.png" height="300" alt="Örnek Sorgu - Mobil">
+</p>
 
 ## ⚙️ Kurulum (Kendi Ortamınızda)
 
