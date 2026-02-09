@@ -169,8 +169,7 @@ async function getProfile() {
   const res = await fetch(API_URL + "?steamid=" + encodeURIComponent(input), {
   headers: {
     "X-Turnstile-Token": turnstileToken
-  },
-  credentials: "include"
+  }
 })
 
   if(!res.ok){
