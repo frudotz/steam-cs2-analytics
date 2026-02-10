@@ -139,6 +139,26 @@ function buildFaceitFactor(faceit,faceitStats){
   return clamp((winFactor+eloFactor+matchFactor)/3,0,1)
 }
 
+const GAME_BADGE_LEVELS = [
+  1, 5, 10, 25, 50, 100, 250, 500,
+  1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
+  11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000,
+  21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 30000,
+  31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, 40000
+]
+
+function getGameCollectorBadge(gamesCount) {
+  if (!gamesCount || gamesCount < 1) return 1
+
+  let badge = 1
+  for (const level of GAME_BADGE_LEVELS) {
+    if (gamesCount >= level) badge = level
+    else break
+  }
+
+  return badge
+}
+
 function buildFriendBanFactor(friendBanStats){
   if(!friendBanStats) return null
   const banned = friendBanStats.bannedFriends || 0
@@ -274,6 +294,8 @@ const steamid = steamID64ToSteamID(steamid64)
 const steamid3 = steamID64ToSteamID3(steamid64)
 const hexid = steamID64ToHexID(steamid64)
 
+  const gameBadgeLevel = getGameCollectorBadge(gamesCount)
+const gameBadgeURL = `https://community.fastly.steamstatic.com/public/images/badges/13_gamecollector/${gameBadgeLevel}_80.png`
   
   const accountValueText=formatCurrency(accountValue,accountValueCurrency)
   const serviceYearsText=(serviceYears===null||serviceYears===undefined) ? "Veri yok" : `${serviceYears} yıl`
@@ -315,7 +337,7 @@ const hexid = steamID64ToHexID(steamid64)
   <div class="profile-badges">
 
     <div class="steam-games-badge">
-      <img src="https://community.fastly.steamstatic.com/public/images/badges/13_gamecollector/250_80.png">
+      <img src="${gameBadgeURL}">
       <div class="badge-count">${gamesCount}</div>
     </div>
 
