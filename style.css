@@ -49,28 +49,23 @@ body{
 /* Tooltip box */
 .footer-tooltip{
   position:absolute;
-  bottom:140%;
+  bottom: 85%;
   left:50%;
   transform:translateX(-50%);
-
-  width:320px;
+  width: 394px;
   max-width:calc(100vw - 32px);
-
   background:rgba(15,23,42,.95);
   border:1px solid rgba(148,163,184,.25);
   backdrop-filter:blur(14px);
   border-radius:14px;
-
   padding:14px 16px;
-  font-size:12px;
+  font-size: 11px;
   line-height:1.45;
   color:#e5e7eb;
-
   opacity:0;
   pointer-events:none;
   transition:opacity .2s ease, transform .2s ease;
-
-  z-index:1000;
+  z-index: 1000;
 }
 
 /* küçük ok */
@@ -83,6 +78,7 @@ body{
   border-width:6px;
   border-style:solid;
   border-color:rgba(15,23,42,.95) transparent transparent transparent;
+  z-index: 999;
 }
 
 /* hover ile aç */
@@ -590,6 +586,14 @@ a:not(.name-link){
 
   .cs2-meta{
     flex-direction:column;
+  }
+
+  .footer-info-wrap {
+    left: 13%;
+  }
+
+  .footer-info-icon {
+    left: 59%;
   }
 }
 
