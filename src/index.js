@@ -146,6 +146,7 @@ if (!corsHeaders) {
 
       const url = new URL(request.url)
       let steamInput = url.searchParams.get("steamid")
+      steamInput = extractSteamIdentifier(steamInput)
 
       if (!steamInput) {
         return new Response(JSON.stringify({ error: "SteamID gerekli" }), {
@@ -189,20 +190,22 @@ if (!corsHeaders) {
         })
       }
 
-      // Steam profile linki geldiyse ayıkla
-      if (steamInput.includes("steamcommunity.com")) {
-        try {
-          const u = new URL(steamInput)
+      function extractSteamIdentifier(input) {
+  if (!input) return null
 
-          if (u.pathname.includes("/id/")) {
-            steamInput = u.pathname.split("/id/")[1].split("/")[0]
-          }
+  if (input.includes("steamcommunity.com")) {
+    try {
+      const u = new URL(input)
+      const parts = u.pathname.split("/").filter(Boolean)
 
-          if (u.pathname.includes("/profiles/")) {
-            steamInput = u.pathname.split("/profiles/")[1].split("/")[0]
-          }
-        } catch {}
-      }
+      if (parts[0] === "id" && parts[1]) return parts[1]
+      if (parts[0] === "profiles" && parts[1]) return parts[1]
+    } catch {}
+  }
+
+  const parts = input.split("/").filter(Boolean)
+  return parts[0] || null
+}
 
       // Vanity URL -> SteamID64
       if (!/^\d{17}$/.test(steamInput)) {
