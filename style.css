@@ -27,17 +27,29 @@ body{
 }
 
 .footer-info-wrap{
-  position:relative;
-  display:flex;
-  align-items:center;
+  position: fixed;
+    bottom: -2px;
+    left: 35%;
+    transform: translateX(-50%);
+    font-size: 31px;
+    color: gray;
+    z-index: 999;
+    padding: 11px 16px;
+    background: rgba(15, 23, 42, .7);
+    border: 1px solid rgba(148, 163, 184, .2);
+    backdrop-filter: blur(16px);
+    border-radius: 16px 16px 0px 0px;
+    white-space: nowrap;
+
 }
 
 .footer-info-icon{
-  font-size:14px;
+  padding: 5px 0px;
+  border-radius: 12px;
+  background: none;
+  font-size: 31px;
   color:rgba(226,232,240,.65);
   cursor:pointer;
-  padding:6px;
-  border-radius:8px;
   transition:background .2s ease, color .2s ease;
 }
 
