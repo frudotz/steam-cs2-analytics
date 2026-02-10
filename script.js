@@ -15,21 +15,37 @@ steamInput.addEventListener("keydown", e=>{
   if(e.key==="Enter") getProfile()
 })
 
-function setInitialSteamIdFromPath() {
-  let value = "";
+function sanitizeSteamPath(raw) {
+  if (!raw) return ""
 
-  if (window.location.hash) {
-    value = window.location.hash.replace(/^#\/?/, "");
+  const clean = raw.replace(/^#\/?/, "").replace(/^\/+/, "")
+  const parts = clean.split("/")
+
+  if (parts[0] === "id" && parts[1]) {
+    return parts[1]
   }
 
-  if (!value) return;
+  if (parts[0] === "profiles" && parts[1]) {
+    return parts[1]
+  }
 
-  steamInput.value = decodeURIComponent(value);
-  hasPendingAutoQuery = true;
+  return parts[0]
+}
+
+function setInitialSteamIdFromPath() {
+  if (!window.location.hash) return
+
+  const raw = window.location.hash
+  const sanitized = sanitizeSteamPath(raw)
+
+  if (!sanitized) return
+
+  steamInput.value = decodeURIComponent(sanitized)
+  hasPendingAutoQuery = true
 
   if (isTurnstileSolved()) {
-    hasPendingAutoQuery = false;
-    getProfile();
+    hasPendingAutoQuery = false
+    getProfile()
   }
 }
 
