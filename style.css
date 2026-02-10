@@ -43,6 +43,22 @@ body{
 
 }
 
+.footer-copyright {
+    position: fixed;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: gray;
+    z-index: 998;
+    padding: 24px 32px;
+    background: rgba(15, 23, 42, .7);
+    border: 1px solid rgba(148, 163, 184, .2);
+    backdrop-filter: blur(16px);
+    border-radius: 16px 16px 0px 0px;
+    white-space: nowrap;
+}
+
 .footer-info-icon{
   padding: 5px 0px;
   border-radius: 12px;
@@ -607,6 +623,15 @@ a:not(.name-link){
   .footer-info-icon {
     left: 59%;
   }
+
+  .footer-tooltip {
+    left: 301%;
+  }
+
+  .footer-tooltip::after {
+    left: 10%;
+  }
+  
 }
 
 @media (max-width:420px){
