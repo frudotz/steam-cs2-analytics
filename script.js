@@ -148,15 +148,13 @@ const GAME_BADGE_LEVELS = [
 ]
 
 function getGameCollectorBadge(gamesCount) {
-  if (!gamesCount || gamesCount < 1) return 1
+  const count = Number(gamesCount)
 
-  let badge = 1
-  for (const level of GAME_BADGE_LEVELS) {
-    if (gamesCount >= level) badge = level
-    else break
-  }
+  if (!Number.isFinite(count) || count < 1) return 1
 
-  return badge
+  return Math.max(
+    ...GAME_BADGE_LEVELS.filter(level => level <= count)
+  )
 }
 
 function buildFriendBanFactor(friendBanStats){
@@ -294,8 +292,9 @@ const steamid = steamID64ToSteamID(steamid64)
 const steamid3 = steamID64ToSteamID3(steamid64)
 const hexid = steamID64ToHexID(steamid64)
 
-  const gameBadgeLevel = getGameCollectorBadge(gamesCount)
-const gameBadgeURL = `https://community.fastly.steamstatic.com/public/images/badges/13_gamecollector/${gameBadgeLevel}_80.png`
+  const safeGamesCount = Math.min(Number(gamesCount) || 0, 40000)
+  const gameBadgeLevel = getGameCollectorBadge(safeGamesCount)
+  const gameBadgeURL = `https://community.fastly.steamstatic.com/public/images/badges/13_gamecollector/${gameBadgeLevel}_80.png`
   
   const accountValueText=formatCurrency(accountValue,accountValueCurrency)
   const serviceYearsText=(serviceYears===null||serviceYears===undefined) ? "Veri yok" : `${serviceYears} yıl`
