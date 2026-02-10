@@ -631,6 +631,10 @@ a:not(.name-link){
   .footer-tooltip::after {
     left: 10%;
   }
+
+  .footer-copyright {
+    left: 59%;
+  }
   
 }
 
