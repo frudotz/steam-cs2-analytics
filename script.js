@@ -1,4 +1,4 @@
-const API_URL = "https://api.frudotz.com/"
+const API_URL = "https://cs2.api.frudotz.com/"
 let hasPendingAutoQuery = false;
 const searchBtn = document.getElementById("searchBtn")
 const steamInput = document.getElementById("steamid")
